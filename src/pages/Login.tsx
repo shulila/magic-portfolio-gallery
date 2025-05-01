@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Mail, Loader2 } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
-  const { authState, login, sendMagicLink } = useAuth();
+  const [verifyingLink, setVerifyingLink] = useState(false);
+  const { authState, sendMagicLink, verifyMagicLink } = useAuth();
   const [searchParams] = useSearchParams();
   
   // Get the token from URL if it exists
@@ -21,16 +23,13 @@ const Login = () => {
   useEffect(() => {
     // Check if this is a magic link login
     if (token && emailFromParams) {
-      // Validate token (in a real app you'd verify this against your backend)
-      const pendingEmail = sessionStorage.getItem('pendingAuthEmail');
+      const verifyTokenAsync = async () => {
+        setVerifyingLink(true);
+        await verifyMagicLink(token, emailFromParams);
+        setVerifyingLink(false);
+      };
       
-      if (pendingEmail === emailFromParams) {
-        // Clear the pending email
-        sessionStorage.removeItem('pendingAuthEmail');
-        
-        // Complete login
-        login(emailFromParams);
-      }
+      verifyTokenAsync();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, emailFromParams]);
@@ -38,6 +37,27 @@ const Login = () => {
   // If user is already authenticated, redirect to admin
   if (authState.isAuthenticated) {
     return <Navigate to="/admin" />;
+  }
+  
+  // If we're verifying a link, show loading
+  if (verifyingLink) {
+    return (
+      <div className="flex items-center justify-center min-h-[70vh]">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="bg-primary/10 p-4 rounded-full">
+                <Loader2 className="h-8 w-8 text-primary animate-spin" />
+              </div>
+              <CardTitle className="text-2xl">Verifying your login</CardTitle>
+              <CardDescription>
+                Please wait while we verify your login link...
+              </CardDescription>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
   
   const handleLogin = async (e: React.FormEvent) => {
@@ -57,7 +77,8 @@ const Login = () => {
   // For demo purposes, simulate magic link
   const handleSimulateLogin = () => {
     // In a real app, the user would receive an email with this link
-    window.location.href = `/login?token=demo-token&email=${encodeURIComponent(email)}`;
+    const token = sessionStorage.getItem('magicLinkToken');
+    window.location.href = `/login?token=${token}&email=${encodeURIComponent(email)}`;
   };
   
   return (
@@ -73,21 +94,8 @@ const Login = () => {
         <CardContent>
           {magicLinkSent ? (
             <div className="text-center space-y-4">
-              <div className="bg-secondary p-4 rounded-lg inline-block mx-auto">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="w-8 h-8 mx-auto text-primary" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
-                  />
-                </svg>
+              <div className="bg-primary/10 p-4 rounded-lg inline-block mx-auto">
+                <Mail className="w-8 h-8 mx-auto text-primary" />
               </div>
               <h3 className="text-xl font-medium">Check your inbox</h3>
               <p className="text-muted-foreground">
@@ -126,7 +134,14 @@ const Login = () => {
                 className="w-full" 
                 disabled={isSubmitting || !email.trim()}
               >
-                {isSubmitting ? 'Sending...' : 'Send me a login link'}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  'Send me a login link'
+                )}
               </Button>
             </form>
           )}
