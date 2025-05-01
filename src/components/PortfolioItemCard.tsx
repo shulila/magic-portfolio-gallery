@@ -83,7 +83,7 @@ const PortfolioItemCard: React.FC<PortfolioItemCardProps> = ({ item, onClick }) 
             className="text-sm text-primary flex items-center gap-1 hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
-            צפה באתר <ExternalLink className="w-3 h-3" />
+            View Site <ExternalLink className="w-3 h-3" />
           </Link>
         </CardFooter>
       )}

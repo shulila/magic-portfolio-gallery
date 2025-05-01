@@ -16,8 +16,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const Admin = () => {
   const { items, addItem, updateItem, deleteItem, isLoading } = usePortfolio();
@@ -26,6 +28,7 @@ const Admin = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<PortfolioItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<PortfolioItem | null>(null);
+  const [previewItem, setPreviewItem] = useState<PortfolioItem | null>(null);
   
   // Redirect if not authenticated
   if (!authState.isAuthenticated && !authState.isLoading) {
@@ -51,10 +54,75 @@ const Admin = () => {
     setItemToDelete(item);
   };
 
+  const handlePreviewItem = (item: PortfolioItem) => {
+    setPreviewItem(item);
+  };
+
   const confirmDelete = () => {
     if (itemToDelete) {
       deleteItem(itemToDelete.id);
       setItemToDelete(null);
+    }
+  };
+
+  const renderPreviewContent = () => {
+    if (!previewItem) return null;
+
+    switch (previewItem.type) {
+      case 'image':
+        return (
+          <AspectRatio ratio={16/9}>
+            <img 
+              src={previewItem.url} 
+              alt={previewItem.title} 
+              className="w-full h-full object-contain rounded-md" 
+            />
+          </AspectRatio>
+        );
+      case 'video':
+        return (
+          <AspectRatio ratio={16/9}>
+            <iframe 
+              src={previewItem.url.includes('youtube') ? 
+                previewItem.url.replace('watch?v=', 'embed/') : previewItem.url} 
+              title={previewItem.title}
+              className="w-full h-full rounded-md" 
+              allowFullScreen
+            ></iframe>
+          </AspectRatio>
+        );
+      case 'url':
+        return (
+          <div className="flex flex-col items-center justify-center p-8 text-center">
+            <div className="bg-secondary/30 p-8 rounded-full mb-4">
+              <AspectRatio ratio={16/9}>
+                {previewItem.thumbnailUrl ? (
+                  <img 
+                    src={previewItem.thumbnailUrl} 
+                    alt={previewItem.title} 
+                    className="w-full h-full object-cover rounded-md" 
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-secondary/30 rounded-md">
+                    <h3 className="text-xl font-medium">External URL Preview</h3>
+                  </div>
+                )}
+              </AspectRatio>
+            </div>
+            <Button asChild className="mt-4">
+              <a 
+                href={previewItem.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                Open External Site
+              </a>
+            </Button>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -81,6 +149,13 @@ const Admin = () => {
             <div key={item.id} className="group relative">
               <PortfolioItemCard item={item} />
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                <Button 
+                  size="icon" 
+                  variant="secondary" 
+                  onClick={() => handlePreviewItem(item)}
+                >
+                  <Eye className="w-4 h-4" />
+                </Button>
                 <Button 
                   size="icon" 
                   variant="secondary" 
@@ -122,6 +197,25 @@ const Admin = () => {
           mode="edit"
         />
       )}
+      
+      {/* Preview Dialog */}
+      <Dialog open={!!previewItem} onOpenChange={() => setPreviewItem(null)}>
+        <DialogContent className="sm:max-w-[800px]">
+          {previewItem && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{previewItem.title}</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                {renderPreviewContent()}
+                {previewItem.description && (
+                  <p className="mt-4 text-muted-foreground">{previewItem.description}</p>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
       
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!itemToDelete} onOpenChange={() => setItemToDelete(null)}>

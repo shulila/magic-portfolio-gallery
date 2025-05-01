@@ -6,11 +6,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
 import { PortfolioItem } from '@/types';
-import { ExternalLink, Play } from 'lucide-react';
+import { ExternalLink, Play, ZoomIn, ZoomOut } from 'lucide-react';
 
 const Gallery = () => {
   const { items, isLoading } = usePortfolio();
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   if (isLoading) {
     return (
@@ -36,6 +37,11 @@ const Gallery = () => {
 
   const handleItemClick = (item: PortfolioItem) => {
     setSelectedItem(item);
+    setIsFullscreen(false);
+  };
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
   };
 
   const renderSelectedItemContent = () => {
@@ -44,16 +50,25 @@ const Gallery = () => {
     switch (selectedItem.type) {
       case 'image':
         return (
-          <AspectRatio ratio={16/9}>
-            <img 
-              src={selectedItem.url} 
-              alt={selectedItem.title} 
-              className="w-full h-full object-contain" 
-            />
-          </AspectRatio>
+          <div className="relative">
+            <AspectRatio ratio={isFullscreen ? undefined : 16/9} className={isFullscreen ? "h-[calc(100vh-200px)]" : ""}>
+              <img 
+                src={selectedItem.url} 
+                alt={selectedItem.title} 
+                className={`w-full h-full ${isFullscreen ? "object-contain" : "object-cover"}`}
+              />
+            </AspectRatio>
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className="absolute top-4 right-4 bg-black/40 hover:bg-black/60"
+              onClick={toggleFullscreen}
+            >
+              {isFullscreen ? <ZoomOut className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
+            </Button>
+          </div>
         );
       case 'video':
-        // This is a simplified video embed, you might want to improve it for production
         return (
           <AspectRatio ratio={16/9}>
             <iframe 
@@ -68,12 +83,14 @@ const Gallery = () => {
       case 'url':
         return (
           <div className="flex flex-col items-center justify-center p-8 text-center">
-            <ExternalLink className="w-16 h-16 text-muted-foreground mb-4" />
+            <div className="bg-secondary/30 p-8 rounded-full mb-4">
+              <ExternalLink className="w-16 h-16 text-primary" />
+            </div>
             <h3 className="text-xl font-medium mb-2">{selectedItem.title}</h3>
             {selectedItem.description && (
               <p className="text-muted-foreground mb-4">{selectedItem.description}</p>
             )}
-            <Button asChild>
+            <Button asChild className="bg-primary/90 hover:bg-primary">
               <a 
                 href={selectedItem.url} 
                 target="_blank" 
@@ -106,8 +123,16 @@ const Gallery = () => {
         ))}
       </div>
       
-      <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="sm:max-w-[800px]">
+      <Dialog 
+        open={!!selectedItem} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedItem(null);
+            setIsFullscreen(false);
+          }
+        }}
+      >
+        <DialogContent className={`sm:max-w-[800px] ${isFullscreen ? "max-w-[95vw]" : ""}`}>
           {selectedItem && (
             <>
               <DialogHeader>
