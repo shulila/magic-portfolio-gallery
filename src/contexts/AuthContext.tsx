@@ -2,6 +2,10 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { AuthState } from '../types';
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+// Whitelist of allowed email addresses
+const ALLOWED_EMAILS = ['shilla.bahar@gmail.com'];
 
 interface AuthContextType {
   authState: AuthState;
@@ -34,12 +38,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Session expires after 24 hours
         if (currentTime - authTime < 24 * 60 * 60 * 1000) {
-          setAuthState({
-            isAuthenticated: true,
-            isLoading: false,
-            email: storedEmail,
-          });
-          return;
+          // Verify the email is in the whitelist
+          if (ALLOWED_EMAILS.includes(storedEmail)) {
+            setAuthState({
+              isAuthenticated: true,
+              isLoading: false,
+              email: storedEmail,
+            });
+            return;
+          } else {
+            // If email is not in whitelist, force logout
+            localStorage.removeItem('portfolioUserEmail');
+            localStorage.removeItem('portfolioAuthTime');
+          }
         } else {
           // Session expired
           localStorage.removeItem('portfolioUserEmail');
@@ -58,6 +69,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string) => {
+    // Verify the email is in the whitelist before login
+    if (!ALLOWED_EMAILS.includes(email)) {
+      toast({
+        variant: "destructive",
+        title: "Access denied",
+        description: "You are not authorized to access this application.",
+      });
+      return;
+    }
+    
     // In a real app, you would validate the login token with your backend
     // For now we'll simulate a successful login
     localStorage.setItem('portfolioUserEmail', email);
@@ -93,6 +114,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const sendMagicLink = async (email: string): Promise<boolean> => {
     try {
+      // Check if the email is in the whitelist
+      if (!ALLOWED_EMAILS.includes(email)) {
+        toast({
+          variant: "destructive",
+          title: "Access denied",
+          description: "You are not authorized to access this application.",
+        });
+        return false;
+      }
+
       // In a real app, you would call your API to send a magic link
       // For this demo, we'll simulate the process
       
@@ -130,6 +161,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const verifyMagicLink = async (token: string, email: string): Promise<boolean> => {
+    // Check if the email is in the whitelist
+    if (!ALLOWED_EMAILS.includes(email)) {
+      toast({
+        variant: "destructive",
+        title: "Access denied",
+        description: "You are not authorized to access this application.",
+      });
+      return false;
+    }
+    
     const pendingEmail = sessionStorage.getItem('pendingAuthEmail');
     const storedToken = sessionStorage.getItem('magicLinkToken');
     const expiresAtStr = sessionStorage.getItem('magicLinkExpires');
