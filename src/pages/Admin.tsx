@@ -134,7 +134,7 @@ const Admin = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>ביטול</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} variant="destructive">
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               מחיקה
             </AlertDialogAction>
           </AlertDialogFooter>
