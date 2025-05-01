@@ -17,7 +17,7 @@ const Gallery = () => {
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">טוען את הגלריה...</p>
+          <p className="mt-4 text-muted-foreground">Loading gallery...</p>
         </div>
       </div>
     );
@@ -27,8 +27,8 @@ const Gallery = () => {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-2">הגלריה ריקה</h2>
-          <p className="text-muted-foreground">אין עדיין פריטים להצגה</p>
+          <h2 className="text-2xl font-semibold mb-2">Gallery is Empty</h2>
+          <p className="text-muted-foreground">There are no items to display yet</p>
         </div>
       </div>
     );
@@ -80,7 +80,7 @@ const Gallery = () => {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
               >
-                פתח באתר חיצוני <ExternalLink className="w-4 h-4" />
+                Open External Site <ExternalLink className="w-4 h-4" />
               </a>
             </Button>
           </div>
@@ -93,7 +93,7 @@ const Gallery = () => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">גלריית עבודות</h1>
+        <h1 className="text-3xl font-bold">Portfolio Gallery</h1>
       </div>
       
       <div className="gallery-grid">

@@ -37,7 +37,7 @@ const Admin = () => {
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">טוען...</p>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -61,18 +61,18 @@ const Admin = () => {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">ניהול הגלריה</h1>
+        <h1 className="text-3xl font-bold">Gallery Management</h1>
         <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" /> הוסף פריט חדש
+          <Plus className="w-4 h-4 mr-2" /> Add New Item
         </Button>
       </div>
       
       {items.length === 0 ? (
         <div className="bg-muted/50 rounded-lg p-8 text-center">
-          <h2 className="text-xl font-medium mb-2">הגלריה ריקה</h2>
-          <p className="text-muted-foreground mb-6">אין עדיין פריטים בגלריה שלך</p>
+          <h2 className="text-xl font-medium mb-2">Gallery is Empty</h2>
+          <p className="text-muted-foreground mb-6">There are no items in your gallery yet</p>
           <Button onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" /> הוסף את הפריט הראשון
+            <Plus className="w-4 h-4 mr-2" /> Add First Item
           </Button>
         </div>
       ) : (
@@ -127,15 +127,15 @@ const Admin = () => {
       <AlertDialog open={!!itemToDelete} onOpenChange={() => setItemToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>למחוק את הפריט?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Item?</AlertDialogTitle>
             <AlertDialogDescription>
-              פעולה זו תמחק את "{itemToDelete?.title}" באופן קבוע מהגלריה שלך.
+              This action will permanently delete "{itemToDelete?.title}" from your gallery.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>ביטול</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              מחיקה
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

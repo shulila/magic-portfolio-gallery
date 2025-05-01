@@ -64,9 +64,9 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-[70vh]">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">כניסה למערכת</CardTitle>
+          <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            כניסה לניהול גלריית תיק העבודות
+            Sign in to manage your portfolio gallery
           </CardDescription>
         </CardHeader>
         
@@ -89,28 +89,28 @@ const Login = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-medium">בדוק את תיבת הדואר שלך</h3>
+              <h3 className="text-xl font-medium">Check your inbox</h3>
               <p className="text-muted-foreground">
-                שלחנו קישור כניסה ל-{email}. 
-                לחץ על הקישור כדי להיכנס למערכת.
+                We've sent a login link to {email}.
+                Click the link to sign in.
               </p>
               
               {/* For demo purposes only */}
               <div className="mt-6 pt-6 border-t">
-                <p className="text-xs text-muted-foreground mb-2">לצורך הדגמה בלבד:</p>
+                <p className="text-xs text-muted-foreground mb-2">For demonstration purposes only:</p>
                 <Button 
                   variant="outline" 
                   className="w-full"
                   onClick={handleSimulateLogin}
                 >
-                  סימולציית קישור קסם
+                  Simulate Magic Link
                 </Button>
               </div>
             </div>
           ) : (
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">אימייל</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -118,7 +118,6 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  dir="ltr"
                 />
               </div>
             
@@ -127,14 +126,14 @@ const Login = () => {
                 className="w-full" 
                 disabled={isSubmitting || !email.trim()}
               >
-                {isSubmitting ? 'שולח...' : 'שלח לי קישור כניסה'}
+                {isSubmitting ? 'Sending...' : 'Send me a login link'}
               </Button>
             </form>
           )}
         </CardContent>
         
         <CardFooter className="justify-center text-sm text-muted-foreground">
-          <p>נשלח אליך קישור למייל כדי להתחבר</p>
+          <p>A magic link will be sent to your email to log in</p>
         </CardFooter>
       </Card>
     </div>

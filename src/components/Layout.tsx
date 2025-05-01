@@ -13,7 +13,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <header className="border-b p-4">
         <div className="container mx-auto flex justify-between items-center">
           <Link to="/" className="text-xl font-semibold">
-            גלריית עבודות
+            Portfolio Gallery
           </Link>
           
           <nav className="flex gap-4 items-center">
@@ -22,19 +22,19 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 {location.pathname !== '/admin' && (
                   <Link to="/admin">
                     <Button variant="outline" size="sm">
-                      ניהול גלריה
+                      Manage Gallery
                     </Button>
                   </Link>
                 )}
                 {location.pathname !== '/' && (
                   <Link to="/">
                     <Button variant="outline" size="sm">
-                      צפייה בגלריה
+                      View Gallery
                     </Button>
                   </Link>
                 )}
                 <Button variant="ghost" size="sm" onClick={logout}>
-                  התנתק
+                  Logout
                 </Button>
                 <span className="text-sm text-muted-foreground">
                   {authState.email}
@@ -45,7 +45,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 {location.pathname !== '/login' && (
                   <Link to="/login">
                     <Button variant="outline" size="sm">
-                      כניסה למערכת
+                      Login
                     </Button>
                   </Link>
                 )}
@@ -61,7 +61,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       
       <footer className="border-t p-4 text-center text-muted-foreground">
         <div className="container mx-auto">
-          <p className="text-sm">גלריית עבודות © {new Date().getFullYear()}</p>
+          <p className="text-sm">Portfolio Gallery © {new Date().getFullYear()}</p>
         </div>
       </footer>
     </div>
