@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { PortfolioItem } from '@/types';
 
 interface Props {
   item: PortfolioItem;
+  onClick?: (item: PortfolioItem) => void;
   onEdit?: (item: PortfolioItem) => void;
   onDelete?: (id: string) => void;
   onPreview?: (item: PortfolioItem) => void;
@@ -14,6 +16,7 @@ interface Props {
 
 const PortfolioItemCard: React.FC<Props> = ({
   item,
+  onClick,
   onEdit,
   onDelete,
   onPreview,
@@ -51,13 +54,19 @@ const PortfolioItemCard: React.FC<Props> = ({
     }
   };
 
+  const handleClick = () => {
+    if (onPreview) {
+      onPreview(item);
+    } else if (onClick) {
+      onClick(item);
+    }
+  };
+
   return (
     <Card className="overflow-hidden group relative aspect-square flex flex-col">
       <div
         className="flex-1 cursor-pointer"
-        onClick={() => {
-          if (onPreview) onPreview(item);
-        }}
+        onClick={handleClick}
       >
         {renderPreview()}
       </div>
