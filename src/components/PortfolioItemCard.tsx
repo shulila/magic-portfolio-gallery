@@ -1,84 +1,87 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PortfolioItem } from '@/types';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
-import { usePortfolio } from '@/contexts/PortfolioContext';
+import { Button } from './ui/button';
+import { Pencil, Trash2, Eye } from 'lucide-react';
 
 interface Props {
   item: PortfolioItem;
   onEdit: () => void;
+  onDelete: () => void;
   onPreview: () => void;
+  isAdmin?: boolean;
 }
 
-const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onPreview }) => {
-  const { deleteItem } = usePortfolio();
-  const [isHovered, setIsHovered] = useState(false);
-
+const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onPreview, isAdmin = false }) => {
   const renderPreview = () => {
+    if (!item.url) return null;
+
     if (item.type === 'image') {
-      return <img src={item.url} alt={item.title} className="w-full h-48 object-cover rounded-t" />;
-    }
-    if (item.type === 'video') {
       return (
-        <video controls className="w-full h-48 object-cover rounded-t">
-          <source src={item.url} />
-          Your browser does not support the video tag.
-        </video>
+        <img
+          src={item.url}
+          alt={item.title}
+          className="object-cover w-full h-[220px] rounded-t-md"
+        />
       );
     }
+
+    if (item.type === 'video') {
+      return (
+        <video
+          src={item.url}
+          controls
+          className="object-cover w-full h-[220px] rounded-t-md"
+        />
+      );
+    }
+
     if (item.type === 'pdf') {
       return (
         <iframe
           src={item.url}
-          className="w-full h-48 object-cover rounded-t"
+          className="w-full h-[220px] rounded-t-md"
           title={item.title}
         />
       );
     }
+
     if (item.type === 'url') {
       return (
         <iframe
           src={item.url}
-          className="w-full h-48 object-cover rounded-t"
+          sandbox="allow-scripts allow-same-origin"
+          className="w-full h-[220px] rounded-t-md"
           title={item.title}
         />
       );
     }
-    return (
-      <div className="w-full h-48 bg-muted flex items-center justify-center rounded-t text-4xl text-white">
-        🔗
-      </div>
-    );
+
+    return null;
   };
 
   return (
-    <Card
-      className="overflow-hidden"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <CardHeader className="p-0 relative">
-        {renderPreview()}
-        {isHovered && (
-          <div className="absolute inset-0 bg-black/40 flex justify-center items-center gap-4">
-            <Button size="icon" variant="destructive" onClick={() => deleteItem(item.id)}>
-              <Trash2 size={18} />
-            </Button>
-            <Button size="icon" onClick={onEdit}>
-              <Pencil size={18} />
-            </Button>
-            <Button size="icon" onClick={onPreview}>
-              <Eye size={18} />
-            </Button>
-          </div>
-        )}
-      </CardHeader>
-      <CardContent className="px-4 py-2">
-        <p className="text-right font-bold">{item.title}</p>
-        <p className="text-xs text-muted-foreground text-right">{item.type}</p>
-      </CardContent>
-    </Card>
+    <div className="relative rounded-md border border-gray-800 bg-gray-950 shadow-sm transition hover:shadow-lg overflow-hidden">
+      {renderPreview()}
+
+      <div className="flex flex-col p-3">
+        <h4 className="text-right text-white text-sm">{item.title}</h4>
+        <p className="text-right text-gray-400 text-xs">{item.type}</p>
+      </div>
+
+      {isAdmin && (
+        <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center gap-4 opacity-0 hover:opacity-100 transition-opacity">
+          <Button size="icon" variant="destructive" onClick={onDelete}>
+            <Trash2 size={16} />
+          </Button>
+          <Button size="icon" variant="secondary" onClick={onEdit}>
+            <Pencil size={16} />
+          </Button>
+          <Button size="icon" variant="default" onClick={onPreview}>
+            <Eye size={16} />
+          </Button>
+        </div>
+      )}
+    </div>
   );
 };
 
