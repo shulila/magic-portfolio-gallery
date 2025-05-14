@@ -35,7 +35,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
   const [url, setUrl] = useState(initialData?.url || '');
   const [type, setType] = useState<'image' | 'video' | 'url' | 'pdf'>(initialData?.type || 'url');
   const [isUploading, setIsUploading] = useState(false);
-
   const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -78,16 +77,30 @@ const ItemForm: React.FC<ItemFormProps> = ({
 
           <div>
             <Label htmlFor="description">תיאור (אופציונלי)</Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
           </div>
 
           <div>
             <Label htmlFor="url">קישור</Label>
-            <Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+            <Input
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+            />
           </div>
 
           <div>
-            <input type="file" accept="image/*,video/*,application/pdf" onChange={handleFileChange} />
+            <Label htmlFor="file">העלאה</Label>
+            <Input
+              type="file"
+              accept="image/*,video/*,application/pdf"
+              onChange={handleFileChange}
+            />
           </div>
 
           <DialogFooter className="mt-4">
