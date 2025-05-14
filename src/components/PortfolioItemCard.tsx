@@ -1,30 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PortfolioItem } from '@/types';
-import { Card, CardContent } from '@/components/ui/card';
-import { Pencil, Trash2, Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { usePortfolio } from '@/contexts/PortfolioContext';
 
 interface Props {
   item: PortfolioItem;
-  onDelete?: () => void;
-  onEdit?: () => void;
-  onPreview?: () => void;
+  onEdit: () => void;
+  onPreview: () => void;
 }
 
-const PortfolioItemCard: React.FC<Props> = ({ item, onDelete, onEdit, onPreview }) => {
+const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onPreview }) => {
+  const { deleteItem } = usePortfolio();
+  const [isHovered, setIsHovered] = useState(false);
+
   const renderPreview = () => {
     if (item.type === 'image') {
       return <img src={item.url} alt={item.title} className="w-full h-48 object-cover rounded-t" />;
     }
-
     if (item.type === 'video') {
       return (
         <video controls className="w-full h-48 object-cover rounded-t">
-          <source src={item.url} type="video/mp4" />
-          הדפדפן שלך אינו תומך בניגון וידאו.
+          <source src={item.url} />
+          Your browser does not support the video tag.
         </video>
       );
     }
-
     if (item.type === 'pdf') {
       return (
         <iframe
@@ -34,8 +36,15 @@ const PortfolioItemCard: React.FC<Props> = ({ item, onDelete, onEdit, onPreview 
         />
       );
     }
-
-    // ברירת מחדל: לינק
+    if (item.type === 'url') {
+      return (
+        <iframe
+          src={item.url}
+          className="w-full h-48 object-cover rounded-t"
+          title={item.title}
+        />
+      );
+    }
     return (
       <div className="w-full h-48 bg-muted flex items-center justify-center rounded-t text-4xl text-white">
         🔗
@@ -44,33 +53,30 @@ const PortfolioItemCard: React.FC<Props> = ({ item, onDelete, onEdit, onPreview 
   };
 
   return (
-    <Card dir="rtl">
-      {renderPreview()}
-
-      <CardContent className="p-4 space-y-1">
-        <div className="flex justify-between items-center">
-          <div className="text-right">
-            <div className="text-white font-semibold">{item.title}</div>
-            <div className="text-sm text-muted-foreground">{item.type}</div>
+    <Card
+      className="overflow-hidden"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <CardHeader className="p-0 relative">
+        {renderPreview()}
+        {isHovered && (
+          <div className="absolute inset-0 bg-black/40 flex justify-center items-center gap-4">
+            <Button size="icon" variant="destructive" onClick={() => deleteItem(item.id)}>
+              <Trash2 size={18} />
+            </Button>
+            <Button size="icon" onClick={onEdit}>
+              <Pencil size={18} />
+            </Button>
+            <Button size="icon" onClick={onPreview}>
+              <Eye size={18} />
+            </Button>
           </div>
-          <div className="flex space-x-2">
-            {onDelete && (
-              <button onClick={onDelete} className="text-red-500 hover:text-red-700">
-                <Trash2 size={18} />
-              </button>
-            )}
-            {onEdit && (
-              <button onClick={onEdit} className="text-purple-400 hover:text-purple-600">
-                <Pencil size={18} />
-              </button>
-            )}
-            {onPreview && (
-              <button onClick={onPreview} className="text-white hover:text-gray-300">
-                <Eye size={18} />
-              </button>
-            )}
-          </div>
-        </div>
+        )}
+      </CardHeader>
+      <CardContent className="px-4 py-2">
+        <p className="text-right font-bold">{item.title}</p>
+        <p className="text-xs text-muted-foreground text-right">{item.type}</p>
       </CardContent>
     </Card>
   );
