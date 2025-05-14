@@ -1,103 +1,98 @@
-
 import React from 'react';
 import { PortfolioItem } from '@/types';
-import { ExternalLink, Pencil, Trash2, Eye } from 'lucide-react';
-import { Button } from './ui/button';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { formatRelative } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 interface Props {
   item: PortfolioItem;
   onEdit?: (item: PortfolioItem) => void;
   onDelete?: (id: string) => void;
-  onPreview?: (item: PortfolioItem) => void;
   onClick?: (item: PortfolioItem) => void;
-  isAdmin?: boolean;
 }
 
-const PortfolioItemCard: React.FC<Props> = ({
-  item,
-  onEdit,
-  onDelete,
-  onPreview,
-  onClick,
-  isAdmin = false,
-}) => {
+const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onClick }) => {
   const renderPreview = () => {
-    const commonProps = {
-      className: 'w-full h-full object-cover rounded-t-md',
-    };
+    const className = "w-full h-full object-cover rounded";
 
-    switch (item.type) {
-      case 'image':
-        return <img src={item.url} alt={item.title} {...commonProps} />;
-      case 'video':
-        return (
-          <video controls {...commonProps}>
-            <source src={item.url} />
-          </video>
-        );
-      case 'pdf':
-        return (
-          <embed src={item.url} type="application/pdf" {...commonProps} />
-        );
-      case 'url':
-        return (
-          <iframe src={item.url} {...commonProps} sandbox="allow-scripts allow-same-origin" />
-        );
-      default:
-        return <div className="flex items-center justify-center w-full h-full text-sm">No preview</div>;
+    if (item.type === 'image') {
+      return <img src={item.url} alt={item.title} className={className} />;
     }
+
+    if (item.type === 'video') {
+      return <video src={item.url} controls className={className} />;
+    }
+
+    if (item.type === 'pdf') {
+      return <embed src={item.url} type="application/pdf" className={className} />;
+    }
+
+    if (item.type === 'url') {
+      // Simple detection of image URL
+      if (item.url.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
+        return <img src={item.url} alt={item.title} className={className} />;
+      }
+      // Otherwise, show thumbnail preview (e.g., YouTube) or link icon
+      return (
+        <iframe
+          src={item.url}
+          className={className}
+          sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
-    <div 
-      className="bg-muted rounded-md overflow-hidden shadow-sm border w-full max-w-[300px]"
-      onClick={onClick ? () => onClick(item) : undefined}
-      style={onClick ? { cursor: 'pointer' } : undefined}
-    >
-      <div className="aspect-square overflow-hidden bg-black">
+    <Card className="w-full max-w-xs overflow-hidden rounded-lg shadow bg-background border border-muted">
+      <div className="preview-box w-full h-56 bg-muted overflow-hidden flex items-center justify-center">
         {renderPreview()}
       </div>
-      <div className="p-2 flex flex-col justify-between">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-right text-white text-sm font-semibold truncate">{item.title}</h3>
-          {item.type === 'url' && (
-            <a href={item.url} target="_blank" rel="noopener noreferrer">
-              <ExternalLink size={14} className="text-muted-foreground" />
-            </a>
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground text-right mb-1">{item.type}</p>
 
-        {isAdmin && (
-          <div className="flex gap-2 mt-2">
-            {onDelete && (
-              <Button variant="destructive" size="icon" onClick={(e) => {
+      <CardContent className="p-4 flex flex-col gap-2 text-right">
+        <p className="text-sm font-medium truncate">{item.title}</p>
+        <p className="text-xs text-muted-foreground">{item.type}</p>
+        {item.url && (
+          <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs flex items-center gap-1">
+            <ExternalLink size={12} />
+          </a>
+        )}
+      </CardContent>
+
+      {(onEdit || onDelete) && (
+        <CardFooter className="flex justify-between px-4 pb-4">
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-red-500"
+              onClick={(e) => {
                 e.stopPropagation();
                 onDelete(item.id);
-              }}>
-                <Trash2 size={16} />
-              </Button>
-            )}
-            {onEdit && (
-              <Button variant="secondary" size="icon" onClick={(e) => {
+              }}
+            >
+              <Trash2 size={14} />
+            </Button>
+          )}
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
                 e.stopPropagation();
                 onEdit(item);
-              }}>
-                <Pencil size={16} />
-              </Button>
-            )}
-            {onPreview && (
-              <Button variant="outline" size="icon" onClick={(e) => {
-                e.stopPropagation();
-                onPreview(item);
-              }}>
-                <Eye size={16} />
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+              }}
+            >
+              <Pencil size={14} />
+            </Button>
+          )}
+        </CardFooter>
+      )}
+    </Card>
   );
 };
 
