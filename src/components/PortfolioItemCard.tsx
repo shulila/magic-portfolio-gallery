@@ -1,86 +1,93 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PortfolioItem } from '@/types';
-import { Button } from './ui/button';
-import { Pencil, Trash2, Eye } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 
 interface Props {
   item: PortfolioItem;
-  onEdit: () => void;
-  onDelete: () => void;
-  onPreview: () => void;
-  isAdmin?: boolean;
+  onEdit: (item: PortfolioItem) => void;
+  onDelete: (item: PortfolioItem) => void;
+  onView: (item: PortfolioItem) => void;
 }
 
-const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onPreview, isAdmin = false }) => {
-  const renderPreview = () => {
-    if (!item.url) return null;
+const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onView }) => {
+  const [isPortrait, setIsPortrait] = useState(false);
 
-    if (item.type === 'image') {
-      return (
-        <img
-          src={item.url}
-          alt={item.title}
-          className="object-cover w-full h-[220px] rounded-t-md"
-        />
-      );
+  useEffect(() => {
+    if (item.type === 'image' || item.type === 'video') {
+      const media = new Image();
+      media.src = item.url;
+      media.onload = () => {
+        setIsPortrait(media.naturalHeight > media.naturalWidth);
+      };
     }
+  }, [item.url, item.type]);
 
-    if (item.type === 'video') {
-      return (
-        <video
-          src={item.url}
-          controls
-          className="object-cover w-full h-[220px] rounded-t-md"
-        />
-      );
+  const getMediaPreview = () => {
+    switch (item.type) {
+      case 'image':
+        return <img src={item.url} alt={item.title} className="w-full h-full object-cover" />;
+      case 'video':
+        return (
+          <video controls className="w-full h-full object-cover">
+            <source src={item.url} />
+          </video>
+        );
+      case 'pdf':
+        return (
+          <iframe src={item.url} className="w-full h-full border-none" title={item.title}></iframe>
+        );
+      case 'url':
+        return (
+          <iframe
+            src={item.url}
+            className="w-full h-full border-none"
+            sandbox="allow-scripts allow-same-origin"
+            title={item.title}
+          ></iframe>
+        );
+      default:
+        return <div className="w-full h-full flex items-center justify-center">No preview</div>;
     }
-
-    if (item.type === 'pdf') {
-      return (
-        <iframe
-          src={item.url}
-          className="w-full h-[220px] rounded-t-md"
-          title={item.title}
-        />
-      );
-    }
-
-    if (item.type === 'url') {
-      return (
-        <iframe
-          src={item.url}
-          sandbox="allow-scripts allow-same-origin"
-          className="w-full h-[220px] rounded-t-md"
-          title={item.title}
-        />
-      );
-    }
-
-    return null;
   };
 
-  return (
-    <div className="relative rounded-md border border-gray-800 bg-gray-950 shadow-sm transition hover:shadow-lg overflow-hidden">
-      {renderPreview()}
+  const cardHeight = isPortrait ? 'h-[360px]' : 'h-[200px]';
+  const cardClass = `rounded-md overflow-hidden bg-[#14101d] border border-[#1c1c24] shadow-sm transition-all ${cardHeight}`;
 
-      <div className="flex flex-col p-3">
-        <h4 className="text-right text-white text-sm">{item.title}</h4>
-        <p className="text-right text-gray-400 text-xs">{item.type}</p>
+  return (
+    <div className={cardClass}>
+      <div className="relative w-full h-full">
+        {getMediaPreview()}
+
+        {/* Action buttons on hover */}
+        <div className="absolute inset-0 flex justify-center items-center bg-black/40 opacity-0 hover:opacity-100 transition">
+          <button
+            className="mx-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded"
+            onClick={() => onDelete(item)}
+            title="Delete"
+          >
+            <Trash2 size={18} />
+          </button>
+          <button
+            className="mx-2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
+            onClick={() => onEdit(item)}
+            title="Edit"
+          >
+            <Pencil size={18} />
+          </button>
+          <button
+            className="mx-2 bg-gray-600 hover:bg-gray-700 text-white p-2 rounded"
+            onClick={() => onView(item)}
+            title="View"
+          >
+            <Eye size={18} />
+          </button>
+        </div>
       </div>
 
-      {isAdmin && (
-        <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center gap-4 opacity-0 hover:opacity-100 transition-opacity">
-          <Button size="icon" variant="destructive" onClick={onDelete}>
-            <Trash2 size={16} />
-          </Button>
-          <Button size="icon" variant="secondary" onClick={onEdit}>
-            <Pencil size={16} />
-          </Button>
-          <Button size="icon" variant="default" onClick={onPreview}>
-            <Eye size={16} />
-          </Button>
-        </div>
-      )}
+      <div className="p-2 text-right text-white text-sm">
+        <div className="font-semibold">{item.title}</div>
+        <div className="text-xs text-gray-400">{item.type}</div>
+      </div>
     </div>
   );
 };
