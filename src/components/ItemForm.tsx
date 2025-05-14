@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { PortfolioItem } from '@/types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
-import { Link, Image, FileVideo, Upload, FileText } from 'lucide-react';
 
 interface ItemFormProps {
   isOpen: boolean;
@@ -22,191 +26,76 @@ const ItemForm: React.FC<ItemFormProps> = ({
   onClose,
   onSubmit,
   initialData,
-  mode
+  mode,
 }) => {
   const { toast } = useToast();
-  
+
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
-  const [type, setType] = useState<'image' | 'video' | 'url' | 'pdf'>(initialData?.type || 'image');
   const [url, setUrl] = useState(initialData?.url || '');
-  const [thumbnailUrl, setThumbnailUrl] = useState(initialData?.thumbnailUrl || '');
+  const [type, setType] = useState<'image' | 'video' | 'url' | 'pdf'>(initialData?.type || 'url');
   const [isUploading, setIsUploading] = useState(false);
+
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!title.trim()) {
-      toast({
-        variant: "destructive",
-        title: "שגיאה",
-        description: "נא להזין כותרת לפריט",
-      });
+
+    if (!title.trim() || (!url.trim() && !file)) {
+      toast({ title: 'נא להזין שם וקובץ או קישור' });
       return;
     }
-    
-    if (!url.trim()) {
-      toast({
-        variant: "destructive",
-        title: "שגיאה",
-        description: "נא להזין כתובת URL לתמונה, סרטון או קישור",
-      });
-      return;
-    }
-    
-    onSubmit({
-      title,
-      description: description || undefined,
-      type,
-      url,
-      thumbnailUrl: thumbnailUrl || undefined,
-    });
-    
+
+    onSubmit({ title, description, url, type });
     onClose();
   };
 
-  const simulateFileUpload = () => {
-    setIsUploading(true);
-    
-    // Simulate file upload delay
-    setTimeout(() => {
-      const imageUrls = [
-        'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
-        'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
-        'https://images.unsplash.com/photo-1483058712412-4245e9b90334'
-      ];
-      
-      const randomUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)];
-      setUrl(randomUrl);
-      setIsUploading(false);
-      
-      toast({
-        title: "קובץ הועלה בהצלחה",
-        description: "התמונה הועלתה והוספה לטופס",
-      });
-    }, 1500);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0] || null;
+    if (selected) {
+      setFile(selected);
+      setUrl(URL.createObjectURL(selected));
+
+      if (selected.type.startsWith('image/')) setType('image');
+      else if (selected.type.startsWith('video/')) setType('video');
+      else if (selected.type === 'application/pdf') setType('pdf');
+      else setType('url');
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]" dir="rtl">
+      <DialogContent dir="rtl">
         <DialogHeader>
-          <DialogTitle>{mode === 'add' ? 'הוספת פריט חדש' : 'עריכת פריט'}</DialogTitle>
+          <DialogTitle>הוספת פריט חדש</DialogTitle>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-          <div className="space-y-2">
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
             <Label htmlFor="title">כותרת</Label>
-            <Input 
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="שם העבודה"
-            />
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
-          
-          <div className="space-y-2">
+
+          <div>
             <Label htmlFor="description">תיאור (אופציונלי)</Label>
-            <Textarea 
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="תיאור קצר של העבודה"
-              className="resize-none"
-              rows={3}
-            />
+            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
-          
-          <div className="space-y-3">
-            <Label>סוג פריט</Label>
-            <RadioGroup 
-              value={type} 
-              onValueChange={(value) => setType(value as 'image' | 'video' | 'url' | 'pdf')}
-              className="flex flex-wrap gap-4"
-            >
-              <div className="flex items-center space-x-2 space-x-reverse">
-                <RadioGroupItem value="image" id="type-image" />
-                <Label htmlFor="type-image" className="cursor-pointer flex items-center gap-2">
-                  <Image className="w-4 h-4" /> תמונה
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2 space-x-reverse">
-                <RadioGroupItem value="video" id="type-video" />
-                <Label htmlFor="type-video" className="cursor-pointer flex items-center gap-2">
-                  <FileVideo className="w-4 h-4" /> סרטון
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2 space-x-reverse">
-                <RadioGroupItem value="url" id="type-url" />
-                <Label htmlFor="type-url" className="cursor-pointer flex items-center gap-2">
-                  <Link className="w-4 h-4" /> קישור חיצוני
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2 space-x-reverse">
-                <RadioGroupItem value="pdf" id="type-pdf" />
-                <Label htmlFor="type-pdf" className="cursor-pointer flex items-center gap-2">
-                  <FileText className="w-4 h-4" /> מסמך PDF
-                </Label>
-              </div>
-            </RadioGroup>
+
+          <div>
+            <Label htmlFor="url">קישור</Label>
+            <Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="url">
-              {type === 'url' ? 'קישור' : 
-               type === 'video' ? 'קישור לסרטון' : 
-               type === 'pdf' ? 'קישור למסמך PDF' : 
-               'קישור לתמונה'}
-            </Label>
-            <div className="flex gap-2">
-              <Input 
-                id="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder={
-                  type === 'url' ? 'https://example.com' : 
-                  type === 'video' ? 'https://youtube.com/...' : 
-                  type === 'pdf' ? 'https://example.com/document.pdf' : 
-                  'https://example.com/image.jpg'
-                }
-                className="flex-1"
-              />
-              
-              {(type === 'image' || type === 'video' || type === 'pdf') && (
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={simulateFileUpload}
-                  disabled={isUploading}
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  {isUploading ? 'מעלה...' : 'העלאה'}
-                </Button>
-              )}
-            </div>
+
+          <div>
+            <input type="file" accept="image/*,video/*,application/pdf" onChange={handleFileChange} />
           </div>
-          
-          {(type === 'video' || type === 'url' || type === 'pdf') && (
-            <div className="space-y-2">
-              <Label htmlFor="thumbnailUrl">קישור לתמונה ממוזערת (אופציונלי)</Label>
-              <Input 
-                id="thumbnailUrl"
-                value={thumbnailUrl}
-                onChange={(e) => setThumbnailUrl(e.target.value)}
-                placeholder="https://example.com/thumbnail.jpg"
-              />
-            </div>
-          )}
-          
-          <DialogFooter className="flex justify-end gap-2 pt-4">
+
+          <DialogFooter className="mt-4">
+            <Button type="submit" variant="default">
+              {mode === 'add' ? 'הוספה' : 'שמירה'}
+            </Button>
             <Button type="button" variant="outline" onClick={onClose}>
               ביטול
-            </Button>
-            <Button type="submit">
-              {mode === 'add' ? 'הוספה' : 'שמירה'}
             </Button>
           </DialogFooter>
         </form>
