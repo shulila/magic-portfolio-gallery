@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PortfolioItem } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -8,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
-import { Link, Image, FileVideo, Upload, FilePdf } from 'lucide-react';
+import { Link, Image, FileVideo, Upload, FileText } from 'lucide-react';
 
 interface ItemFormProps {
   isOpen: boolean;
@@ -149,7 +148,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
               <div className="flex items-center space-x-2 space-x-reverse">
                 <RadioGroupItem value="pdf" id="type-pdf" />
                 <Label htmlFor="type-pdf" className="cursor-pointer flex items-center gap-2">
-                  <FilePdf className="w-4 h-4" /> מסמך PDF
+                  <FileText className="w-4 h-4" /> מסמך PDF
                 </Label>
               </div>
             </RadioGroup>

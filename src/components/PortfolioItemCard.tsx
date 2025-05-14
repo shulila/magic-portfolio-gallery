@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { PortfolioItem } from '@/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Link } from 'react-router-dom';
-import { ExternalLink, Play, FilePdf } from 'lucide-react';
+import { ExternalLink, Play, FileText } from 'lucide-react';
 
 interface PortfolioItemCardProps {
   item: PortfolioItem;
@@ -52,7 +51,7 @@ const PortfolioItemCard: React.FC<PortfolioItemCardProps> = ({ item, onClick }) 
                   className="w-full h-full object-cover rounded-t-md transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
-                <FilePdf className="w-12 h-12 text-muted-foreground" />
+                <FileText className="w-12 h-12 text-muted-foreground" />
               )}
             </div>
           </AspectRatio>
