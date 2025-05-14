@@ -161,7 +161,7 @@ const Gallery = () => {
           <PortfolioItemCard 
             key={item.id} 
             item={item} 
-            onClick={() => handleItemClick(item)}
+            onClick={handleItemClick}
           />
         ))}
       </div>

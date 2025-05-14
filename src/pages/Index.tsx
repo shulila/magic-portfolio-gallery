@@ -3,9 +3,16 @@ import React from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import PortfolioItemCard from '@/components/PortfolioItemCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const { items, isLoading } = usePortfolio();
+  const navigate = useNavigate();
+
+  // Handler to navigate to gallery with the selected item
+  const handleItemClick = (item: PortfolioItem) => {
+    navigate('/gallery');
+  };
 
   // Render loading skeletons
   const renderSkeletons = () => {
@@ -39,7 +46,11 @@ const Index = () => {
         ) : items && items.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map(item => (
-              <PortfolioItemCard key={item.id} item={item} />
+              <PortfolioItemCard 
+                key={item.id} 
+                item={item} 
+                onClick={handleItemClick}
+              />
             ))}
           </div>
         ) : (

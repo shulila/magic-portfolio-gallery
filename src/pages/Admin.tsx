@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -147,30 +146,12 @@ const Admin = () => {
         <div className="gallery-grid">
           {items.map((item) => (
             <div key={item.id} className="group relative">
-              <PortfolioItemCard item={item} />
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
-                <Button 
-                  size="icon" 
-                  variant="secondary" 
-                  onClick={() => handlePreviewItem(item)}
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
-                <Button 
-                  size="icon" 
-                  variant="secondary" 
-                  onClick={() => handleEditItem(item)}
-                >
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <Button 
-                  size="icon" 
-                  variant="destructive" 
-                  onClick={() => handleDeleteItem(item)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
+              <PortfolioItemCard 
+                item={item} 
+                onEdit={handleEditItem}
+                onDelete={handleDeleteItem}
+                onView={handlePreviewItem}
+              />
             </div>
           ))}
         </div>

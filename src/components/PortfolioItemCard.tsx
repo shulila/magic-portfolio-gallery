@@ -1,15 +1,23 @@
+
 import React, { useEffect, useState } from 'react';
 import { PortfolioItem } from '@/types';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Eye, FileText, Pencil, Trash2 } from 'lucide-react';
 
 interface Props {
   item: PortfolioItem;
-  onEdit: (item: PortfolioItem) => void;
-  onDelete: (item: PortfolioItem) => void;
-  onView: (item: PortfolioItem) => void;
+  onEdit?: (item: PortfolioItem) => void;
+  onDelete?: (item: PortfolioItem) => void;
+  onView?: (item: PortfolioItem) => void;
+  onClick?: (item: PortfolioItem) => void;
 }
 
-const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onView }) => {
+const PortfolioItemCard: React.FC<Props> = ({ 
+  item, 
+  onEdit, 
+  onDelete, 
+  onView, 
+  onClick 
+}) => {
   const [isPortrait, setIsPortrait] = useState(false);
 
   useEffect(() => {
@@ -51,37 +59,60 @@ const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onView }) 
   };
 
   const cardHeight = isPortrait ? 'h-[360px]' : 'h-[200px]';
-  const cardClass = `rounded-md overflow-hidden bg-[#14101d] border border-[#1c1c24] shadow-sm transition-all ${cardHeight}`;
+  const cardClass = `rounded-md overflow-hidden bg-[#14101d] border border-[#1c1c24] shadow-sm transition-all ${cardHeight} cursor-pointer`;
+
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick(item);
+    }
+  };
 
   return (
-    <div className={cardClass}>
+    <div className={cardClass} onClick={handleCardClick}>
       <div className="relative w-full h-full">
         {getMediaPreview()}
 
-        {/* Action buttons on hover */}
-        <div className="absolute inset-0 flex justify-center items-center bg-black/40 opacity-0 hover:opacity-100 transition">
-          <button
-            className="mx-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded"
-            onClick={() => onDelete(item)}
-            title="Delete"
-          >
-            <Trash2 size={18} />
-          </button>
-          <button
-            className="mx-2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
-            onClick={() => onEdit(item)}
-            title="Edit"
-          >
-            <Pencil size={18} />
-          </button>
-          <button
-            className="mx-2 bg-gray-600 hover:bg-gray-700 text-white p-2 rounded"
-            onClick={() => onView(item)}
-            title="View"
-          >
-            <Eye size={18} />
-          </button>
-        </div>
+        {/* Action buttons on hover - only show if handlers are provided */}
+        {(onDelete || onEdit || onView) && (
+          <div className="absolute inset-0 flex justify-center items-center bg-black/40 opacity-0 hover:opacity-100 transition">
+            {onDelete && (
+              <button
+                className="mx-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(item);
+                }}
+                title="Delete"
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
+            {onEdit && (
+              <button
+                className="mx-2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(item);
+                }}
+                title="Edit"
+              >
+                <Pencil size={18} />
+              </button>
+            )}
+            {onView && (
+              <button
+                className="mx-2 bg-gray-600 hover:bg-gray-700 text-white p-2 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onView(item);
+                }}
+                title="View"
+              >
+                <Eye size={18} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="p-2 text-right text-white text-sm">
