@@ -1,32 +1,11 @@
 
 import React from 'react';
-import useSWR from 'swr';
-import { supabase } from '@/integrations/supabase/client';
-import ItemCard from '@/components/ItemCard';
+import { usePortfolio } from '@/contexts/PortfolioContext';
+import PortfolioItemCard from '@/components/PortfolioItemCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface Item {
-  id: string;
-  title: string;
-  description?: string;
-  url: string;
-  type: 'image' | 'video' | 'pdf' | 'link';
-  thumbnail_url?: string;
-}
-
-// Fetcher function for SWR
-const fetcher = async () => {
-  const { data, error } = await supabase
-    .from('items')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-  return data as Item[];
-};
-
 const Index = () => {
-  const { data: items, error, isLoading } = useSWR('portfolio-items', fetcher);
+  const { items, isLoading } = usePortfolio();
 
   // Render loading skeletons
   const renderSkeletons = () => {
@@ -53,25 +32,21 @@ const Index = () => {
           </p>
         </div>
 
-        {error && (
-          <div className="text-center text-destructive p-8">
-            <p>שגיאה בטעינת הנתונים, אנא נסו שוב מאוחר יותר</p>
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {renderSkeletons()}
+          </div>
+        ) : items && items.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {items.map(item => (
+              <PortfolioItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-muted-foreground p-8">
+            <p>אין פריטים להצגה כרגע</p>
           </div>
         )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? (
-            renderSkeletons()
-          ) : items && items.length > 0 ? (
-            items.map(item => (
-              <ItemCard key={item.id} item={item} />
-            ))
-          ) : (
-            <div className="col-span-full text-center p-8">
-              <p>אין פריטים להצגה כרגע</p>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
