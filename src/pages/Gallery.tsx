@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import PortfolioItemCard from '@/components/PortfolioItemCard';

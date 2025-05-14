@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { PortfolioItem } from '@/types';
 import { ExternalLink, Pencil, Trash2, Eye } from 'lucide-react';
@@ -5,9 +6,10 @@ import { Button } from './ui/button';
 
 interface Props {
   item: PortfolioItem;
-  onEdit: (item: PortfolioItem) => void;
-  onDelete: (id: number) => void;
+  onEdit?: (item: PortfolioItem) => void;
+  onDelete?: (id: string) => void;
   onPreview?: (item: PortfolioItem) => void;
+  onClick?: (item: PortfolioItem) => void;
   isAdmin?: boolean;
 }
 
@@ -16,6 +18,7 @@ const PortfolioItemCard: React.FC<Props> = ({
   onEdit,
   onDelete,
   onPreview,
+  onClick,
   isAdmin = false,
 }) => {
   const renderPreview = () => {
@@ -46,7 +49,11 @@ const PortfolioItemCard: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-muted rounded-md overflow-hidden shadow-sm border w-full max-w-[300px]">
+    <div 
+      className="bg-muted rounded-md overflow-hidden shadow-sm border w-full max-w-[300px]"
+      onClick={onClick ? () => onClick(item) : undefined}
+      style={onClick ? { cursor: 'pointer' } : undefined}
+    >
       <div className="aspect-square overflow-hidden bg-black">
         {renderPreview()}
       </div>
@@ -63,14 +70,27 @@ const PortfolioItemCard: React.FC<Props> = ({
 
         {isAdmin && (
           <div className="flex gap-2 mt-2">
-            <Button variant="destructive" size="icon" onClick={() => onDelete(item.id)}>
-              <Trash2 size={16} />
-            </Button>
-            <Button variant="secondary" size="icon" onClick={() => onEdit(item)}>
-              <Pencil size={16} />
-            </Button>
+            {onDelete && (
+              <Button variant="destructive" size="icon" onClick={(e) => {
+                e.stopPropagation();
+                onDelete(item.id);
+              }}>
+                <Trash2 size={16} />
+              </Button>
+            )}
+            {onEdit && (
+              <Button variant="secondary" size="icon" onClick={(e) => {
+                e.stopPropagation();
+                onEdit(item);
+              }}>
+                <Pencil size={16} />
+              </Button>
+            )}
             {onPreview && (
-              <Button variant="outline" size="icon" onClick={() => onPreview(item)}>
+              <Button variant="outline" size="icon" onClick={(e) => {
+                e.stopPropagation();
+                onPreview(item);
+              }}>
                 <Eye size={16} />
               </Button>
             )}

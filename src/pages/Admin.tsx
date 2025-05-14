@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -150,7 +151,8 @@ const Admin = () => {
                 item={item} 
                 onEdit={handleEditItem}
                 onDelete={handleDeleteItem}
-                onView={handlePreviewItem}
+                onPreview={handlePreviewItem}
+                isAdmin={true}
               />
             </div>
           ))}
