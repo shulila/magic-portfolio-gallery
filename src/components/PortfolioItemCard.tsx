@@ -1,7 +1,7 @@
 import React from 'react';
 import { PortfolioItem } from '@/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
+import { ExternalLink, Pencil, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatRelative } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -11,9 +11,18 @@ interface Props {
   onEdit?: (item: PortfolioItem) => void;
   onDelete?: (id: string) => void;
   onClick?: (item: PortfolioItem) => void;
+  onPreview?: (item: PortfolioItem) => void;
+  isAdmin?: boolean;
 }
 
-const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onClick }) => {
+const PortfolioItemCard: React.FC<Props> = ({ 
+  item, 
+  onEdit, 
+  onDelete, 
+  onClick,
+  onPreview,
+  isAdmin
+}) => {
   const renderPreview = () => {
     const className = "w-full h-full object-cover rounded";
 
@@ -49,7 +58,16 @@ const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onClick })
 
   return (
     <Card className="w-full max-w-xs overflow-hidden rounded-lg shadow bg-background border border-muted">
-      <div className="preview-box w-full h-56 bg-muted overflow-hidden flex items-center justify-center">
+      <div 
+        className="preview-box w-full h-56 bg-muted overflow-hidden flex items-center justify-center cursor-pointer" 
+        onClick={() => {
+          if (onPreview) {
+            onPreview(item);
+          } else if (onClick) {
+            onClick(item);
+          }
+        }}
+      >
         {renderPreview()}
       </div>
 
@@ -63,7 +81,7 @@ const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onClick })
         )}
       </CardContent>
 
-      {(onEdit || onDelete) && (
+      {(onEdit || onDelete || onPreview) && (
         <CardFooter className="flex justify-between px-4 pb-4">
           {onDelete && (
             <Button
@@ -76,6 +94,18 @@ const PortfolioItemCard: React.FC<Props> = ({ item, onEdit, onDelete, onClick })
               }}
             >
               <Trash2 size={14} />
+            </Button>
+          )}
+          {onPreview && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPreview(item);
+              }}
+            >
+              <Eye size={14} />
             </Button>
           )}
           {onEdit && (
