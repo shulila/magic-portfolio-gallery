@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import PortfolioItemCard from '@/components/PortfolioItemCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
