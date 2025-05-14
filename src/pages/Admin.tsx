@@ -50,8 +50,11 @@ const Admin = () => {
     setItemToEdit(item);
   };
 
-  const handleDeleteItem = (item: PortfolioItem) => {
-    setItemToDelete(item);
+  const handleDeleteItem = (id: string) => {
+    const item = items.find(item => item.id === id);
+    if (item) {
+      setItemToDelete(item);
+    }
   };
 
   const handlePreviewItem = (item: PortfolioItem) => {
