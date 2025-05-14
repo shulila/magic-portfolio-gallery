@@ -4,6 +4,7 @@ import { usePortfolio } from '@/contexts/PortfolioContext';
 import PortfolioItemCard from '@/components/PortfolioItemCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
+import { PortfolioItem } from '@/types';
 
 const Index = () => {
   const { items, isLoading } = usePortfolio();
