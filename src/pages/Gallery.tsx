@@ -6,19 +6,52 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
 import { PortfolioItem } from '@/types';
-import { ExternalLink, Play, ZoomIn, ZoomOut } from 'lucide-react';
+import { ExternalLink, Play, ZoomIn, ZoomOut, X } from 'lucide-react';
 
 const Gallery = () => {
   const { items, isLoading } = usePortfolio();
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // Focus management for accessibility
+  useEffect(() => {
+    if (selectedItem && closeButtonRef.current) {
+      closeButtonRef.current.focus();
+    }
+  }, [selectedItem]);
+  
+  // Keyboard handling for accessibility
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedItem) {
+        setSelectedItem(null);
+        setIsFullscreen(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedItem]);
+  
+  // Prevent body scrolling when modal is open
+  useEffect(() => {
+    if (selectedItem) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedItem]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading gallery...</p>
+          <p className="mt-4 text-muted-foreground">טוען גלריה...</p>
         </div>
       </div>
     );
@@ -28,8 +61,8 @@ const Gallery = () => {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-2">Gallery is Empty</h2>
-          <p className="text-muted-foreground">There are no items to display yet</p>
+          <h2 className="text-2xl font-semibold mb-2">הגלריה ריקה</h2>
+          <p className="text-muted-foreground">אין פריטים להצגה כרגע</p>
         </div>
       </div>
     );
@@ -80,6 +113,16 @@ const Gallery = () => {
             ></iframe>
           </AspectRatio>
         );
+      case 'pdf':
+        return (
+          <div className="relative h-[70vh]">
+            <iframe
+              src={selectedItem.url}
+              title={selectedItem.title}
+              className="w-full h-full"
+            ></iframe>
+          </div>
+        );
       case 'url':
         return (
           <div className="flex flex-col items-center justify-center p-8 text-center">
@@ -97,7 +140,7 @@ const Gallery = () => {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
               >
-                Open External Site <ExternalLink className="w-4 h-4" />
+                פתח אתר חיצוני <ExternalLink className="w-4 h-4" />
               </a>
             </Button>
           </div>
@@ -108,12 +151,12 @@ const Gallery = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" dir="rtl">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Portfolio Gallery</h1>
+        <h1 className="text-3xl font-bold">גלריית עבודות</h1>
       </div>
       
-      <div className="gallery-grid">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((item) => (
           <PortfolioItemCard 
             key={item.id} 
@@ -132,13 +175,25 @@ const Gallery = () => {
           }
         }}
       >
-        <DialogContent className={`sm:max-w-[800px] ${isFullscreen ? "max-w-[95vw]" : ""}`}>
+        <DialogContent 
+          className={`sm:max-w-[800px] ${isFullscreen ? "max-w-[95vw]" : ""} animate-in fade-in-0 zoom-in-95 slide-in-from-left-1/2 slide-in-from-top-[48%]`}
+        >
           {selectedItem && (
             <>
-              <DialogHeader>
+              <DialogHeader className="rtl">
                 <DialogTitle>{selectedItem.title}</DialogTitle>
+                <Button
+                  ref={closeButtonRef}
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+                  onClick={() => setSelectedItem(null)}
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">סגור</span>
+                </Button>
               </DialogHeader>
-              <div className="py-4">
+              <div className="py-4 rtl">
                 {renderSelectedItemContent()}
                 {selectedItem.description && selectedItem.type !== 'url' && (
                   <p className="mt-4 text-muted-foreground">{selectedItem.description}</p>
