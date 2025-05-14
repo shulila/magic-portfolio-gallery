@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/components/ui/use-toast';
-import { Link, Image, FileVideo, Upload } from 'lucide-react';
+import { Link, Image, FileVideo, Upload, FilePdf } from 'lucide-react';
 
 interface ItemFormProps {
   isOpen: boolean;
@@ -29,7 +29,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
   
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
-  const [type, setType] = useState<'image' | 'video' | 'url'>(initialData?.type || 'image');
+  const [type, setType] = useState<'image' | 'video' | 'url' | 'pdf'>(initialData?.type || 'image');
   const [url, setUrl] = useState(initialData?.url || '');
   const [thumbnailUrl, setThumbnailUrl] = useState(initialData?.thumbnailUrl || '');
   const [isUploading, setIsUploading] = useState(false);
@@ -122,7 +122,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
             <Label>סוג פריט</Label>
             <RadioGroup 
               value={type} 
-              onValueChange={(value) => setType(value as 'image' | 'video' | 'url')}
+              onValueChange={(value) => setType(value as 'image' | 'video' | 'url' | 'pdf')}
               className="flex flex-wrap gap-4"
             >
               <div className="flex items-center space-x-2 space-x-reverse">
@@ -145,21 +145,38 @@ const ItemForm: React.FC<ItemFormProps> = ({
                   <Link className="w-4 h-4" /> קישור חיצוני
                 </Label>
               </div>
+              
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <RadioGroupItem value="pdf" id="type-pdf" />
+                <Label htmlFor="type-pdf" className="cursor-pointer flex items-center gap-2">
+                  <FilePdf className="w-4 h-4" /> מסמך PDF
+                </Label>
+              </div>
             </RadioGroup>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="url">{type === 'url' ? 'קישור' : type === 'video' ? 'קישור לסרטון' : 'קישור לתמונה'}</Label>
+            <Label htmlFor="url">
+              {type === 'url' ? 'קישור' : 
+               type === 'video' ? 'קישור לסרטון' : 
+               type === 'pdf' ? 'קישור למסמך PDF' : 
+               'קישור לתמונה'}
+            </Label>
             <div className="flex gap-2">
               <Input 
                 id="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder={type === 'url' ? 'https://example.com' : type === 'video' ? 'https://youtube.com/...' : 'https://example.com/image.jpg'}
+                placeholder={
+                  type === 'url' ? 'https://example.com' : 
+                  type === 'video' ? 'https://youtube.com/...' : 
+                  type === 'pdf' ? 'https://example.com/document.pdf' : 
+                  'https://example.com/image.jpg'
+                }
                 className="flex-1"
               />
               
-              {(type === 'image' || type === 'video') && (
+              {(type === 'image' || type === 'video' || type === 'pdf') && (
                 <Button 
                   type="button" 
                   variant="outline"
@@ -173,7 +190,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
             </div>
           </div>
           
-          {(type === 'video' || type === 'url') && (
+          {(type === 'video' || type === 'url' || type === 'pdf') && (
             <div className="space-y-2">
               <Label htmlFor="thumbnailUrl">קישור לתמונה ממוזערת (אופציונלי)</Label>
               <Input 

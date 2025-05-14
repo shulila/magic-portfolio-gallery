@@ -4,7 +4,7 @@ import { PortfolioItem } from '@/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Link } from 'react-router-dom';
-import { ExternalLink, Play } from 'lucide-react';
+import { ExternalLink, Play, FilePdf } from 'lucide-react';
 
 interface PortfolioItemCardProps {
   item: PortfolioItem;
@@ -38,6 +38,22 @@ const PortfolioItemCard: React.FC<PortfolioItemCardProps> = ({ item, onClick }) 
                   <Play className="text-white" />
                 </div>
               </div>
+            </div>
+          </AspectRatio>
+        );
+      case 'pdf':
+        return (
+          <AspectRatio ratio={16 / 9}>
+            <div className="relative w-full h-full bg-secondary rounded-t-md flex items-center justify-center">
+              {item.thumbnailUrl ? (
+                <img 
+                  src={item.thumbnailUrl} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover rounded-t-md transition-transform duration-300 group-hover:scale-105"
+                />
+              ) : (
+                <FilePdf className="w-12 h-12 text-muted-foreground" />
+              )}
             </div>
           </AspectRatio>
         );
