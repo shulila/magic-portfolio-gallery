@@ -3,7 +3,7 @@ import { usePortfolio } from '@/contexts/PortfolioContext';
 import Gallery from './Gallery';
 
 const IndexPage = () => {
-  const { displayItems } = usePortfolio();
+  const { items } = usePortfolio();
 
   return (
     <main className="min-h-screen w-full p-4">

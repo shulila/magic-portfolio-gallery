@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PortfolioItem } from '@/types';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ExternalLink, FileText } from 'lucide-react';
+import GalleryItem from '@/components/GalleryItem';
 
 const Gallery = () => {
-  const { displayItems } = usePortfolio();
+  const { items } = usePortfolio();
   const [previewItem, setPreviewItem] = useState<PortfolioItem | null>(null);
 
   const handleClose = () => setPreviewItem(null);
@@ -54,7 +54,7 @@ const Gallery = () => {
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-        {displayItems.map((item) => (
+        {items.map((item) => (
           <div
             key={item.id}
             className="cursor-pointer"
