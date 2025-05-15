@@ -1,240 +1,80 @@
 import React, { useState } from 'react';
-import { usePortfolio } from '@/contexts/PortfolioContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
-import ItemForm from '@/components/ItemForm';
-import { PortfolioItemCard } from '@/components/PortfolioItemCard';
+import { usePortfolio } from '@/contexts/portfolio-context';
 import { PortfolioItem } from '@/types';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { PortfolioItemCard } from '@/components/portfolio/PortfolioItemCard';
+import { ItemForm } from '@/components/portfolio/ItemForm';
 
-const Admin = () => {
-  const { items, addItem, updateItem, deleteItem, isLoading } = usePortfolio();
-  const { authState } = useAuth();
-  
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<PortfolioItem | null>(null);
-  const [itemToDelete, setItemToDelete] = useState<PortfolioItem | null>(null);
+const AdminPage = () => {
+  const { displayItems, removeItem } = usePortfolio();
+
   const [previewItem, setPreviewItem] = useState<PortfolioItem | null>(null);
-  
-  // Redirect if not authenticated
-  if (!authState.isAuthenticated && !authState.isLoading) {
-    return <Navigate to="/login" />;
-  }
+  const [editItem, setEditItem] = useState<PortfolioItem | null>(null);
 
-  if (authState.isLoading || isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const handleEditItem = (item: PortfolioItem) => {
-    setItemToEdit(item);
-  };
-
-  const handleDeleteItem = (id: string) => {
-    const item = items.find(item => item.id === id);
-    if (item) {
-      setItemToDelete(item);
-    }
-  };
-
-  const handlePreviewItem = (item: PortfolioItem) => {
-    setPreviewItem(item);
-  };
-
-  const confirmDelete = () => {
-    if (itemToDelete) {
-      deleteItem(itemToDelete.id);
-      setItemToDelete(null);
-    }
-  };
-
-  const renderPreviewContent = () => {
-    if (!previewItem) return null;
-
-    switch (previewItem.type) {
-      case 'image':
-        return (
-          <AspectRatio ratio={16/9}>
-            <img 
-              src={previewItem.url} 
-              alt={previewItem.title} 
-              className="w-full h-full object-contain rounded-md" 
-            />
-          </AspectRatio>
-        );
-      case 'video':
-        return (
-          <AspectRatio ratio={16/9}>
-            <iframe 
-              src={previewItem.url.includes('youtube') ? 
-                previewItem.url.replace('watch?v=', 'embed/') : previewItem.url} 
-              title={previewItem.title}
-              className="w-full h-full rounded-md" 
-              allowFullScreen
-            ></iframe>
-          </AspectRatio>
-        );
-      case 'pdf':
-        return (
-          <div className="flex flex-col items-center justify-center p-8 text-center">
-            <div className="bg-secondary/30 p-8 rounded-full mb-4">
-              <AspectRatio ratio={16/9}>
-                <div className="w-full h-full flex items-center justify-center bg-secondary/30 rounded-md">
-                  <h3 className="text-xl font-medium">PDF Preview</h3>
-                </div>
-              </AspectRatio>
-            </div>
-            <Button asChild className="mt-4">
-              <a 
-                href={previewItem.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                Open PDF Document
-              </a>
-            </Button>
-          </div>
-        );
-      case 'url':
-        return (
-          <div className="flex flex-col items-center justify-center p-8 text-center">
-            <div className="bg-secondary/30 p-8 rounded-full mb-4">
-              <AspectRatio ratio={16/9}>
-                <div className="w-full h-full flex items-center justify-center bg-secondary/30 rounded-md">
-                  <h3 className="text-xl font-medium">External URL Preview</h3>
-                </div>
-              </AspectRatio>
-            </div>
-            <Button asChild className="mt-4">
-              <a 
-                href={previewItem.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                Open External Site
-              </a>
-            </Button>
-          </div>
-        );
-      default:
-        return null;
+  const handleDelete = (id: string) => {
+    const item = displayItems.find((i) => i.id === id);
+    if (item && confirm(`האם למחוק את "${item.title || item.type}"?`)) {
+      removeItem(item.id);
     }
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Gallery Management</h1>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" /> Add New Item
-        </Button>
+    <main className="p-4 max-w-screen-2xl mx-auto">
+      <h1 className="text-xl font-semibold mb-4 text-center">ניהול תיק עבודות</h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {displayItems.map((item) => (
+          <PortfolioItemCard
+            key={item.id}
+            item={item}
+            onPreview={() => setPreviewItem(item)}
+            onEdit={(i) => setEditItem(i)}
+            onDelete={(id) => handleDelete(id)}
+            isAdmin
+          />
+        ))}
       </div>
-      
-      {items.length === 0 ? (
-        <div className="bg-muted/50 rounded-lg p-8 text-center">
-          <h2 className="text-xl font-medium mb-2">Gallery is Empty</h2>
-          <p className="text-muted-foreground mb-6">There are no items in your gallery yet</p>
-          <Button onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" /> Add First Item
-          </Button>
-        </div>
-      ) : (
-        <div className="gallery-grid">
-          {items.map((item) => (
-            <div key={item.id} className="group relative">
-              <PortfolioItemCard 
-                item={item} 
-                onEdit={handleEditItem}
-                onDelete={handleDeleteItem}
-                onPreview={handlePreviewItem}
-                isAdmin={true}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-      
-      {/* Add Item Dialog */}
-      <ItemForm
-        isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
-        onSubmit={addItem}
-        mode="add"
-      />
-      
-      {/* Edit Item Dialog */}
-      {itemToEdit && (
-        <ItemForm
-          isOpen={!!itemToEdit}
-          onClose={() => setItemToEdit(null)}
-          onSubmit={(updatedItem) => {
-            updateItem(itemToEdit.id, updatedItem);
-            setItemToEdit(null);
-          }}
-          initialData={itemToEdit}
-          mode="edit"
-        />
-      )}
-      
-      {/* Preview Dialog */}
+
+      {/* Preview Modal */}
       <Dialog open={!!previewItem} onOpenChange={() => setPreviewItem(null)}>
-        <DialogContent className="sm:max-w-[800px]">
-          {previewItem && (
-            <>
-              <DialogHeader>
-                <DialogTitle>{previewItem.title}</DialogTitle>
-              </DialogHeader>
-              <div className="py-4">
-                {renderPreviewContent()}
-                {previewItem.description && (
-                  <p className="mt-4 text-muted-foreground">{previewItem.description}</p>
-                )}
-              </div>
-            </>
+        <DialogContent className="max-w-4xl w-full">
+          {previewItem?.type === 'image' && (
+            <img src={previewItem.url} alt={previewItem.title} className="w-full rounded-lg" />
+          )}
+          {previewItem?.type === 'video' && (
+            <video src={previewItem.url} controls className="w-full rounded-lg" />
+          )}
+          {previewItem?.type === 'pdf' && (
+            <iframe
+              src={`https://docs.google.com/gview?url=${previewItem.url}&embedded=true`}
+              className="w-full h-[80vh]"
+              title="PDF Preview"
+            />
+          )}
+          {previewItem?.type === 'url' && (
+            <div className="text-center">
+              <p>קישור חיצוני:</p>
+              <a
+                href={previewItem.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                {previewItem.url}
+              </a>
+            </div>
           )}
         </DialogContent>
       </Dialog>
-      
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!itemToDelete} onOpenChange={() => setItemToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Item?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action will permanently delete "{itemToDelete?.title}" from your gallery.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+
+      {/* Edit Modal */}
+      <Dialog open={!!editItem} onOpenChange={() => setEditItem(null)}>
+        <DialogContent className="max-w-2xl w-full">
+          {editItem && <ItemForm item={editItem} onClose={() => setEditItem(null)} />}
+        </DialogContent>
+      </Dialog>
+    </main>
   );
 };
 
-export default Admin;
+export default AdminPage;

@@ -1,112 +1,102 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { usePortfolio } from '@/contexts/portfolio-context';
 import { PortfolioItem } from '@/types';
-import { usePortfolio } from '@/contexts/PortfolioContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { GalleryItem } from '@/components/GalleryItem';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import { ExternalLink, FileText } from 'lucide-react';
 
-/* ---------- helpers to detect direct media URLs ---------- */
-const isImageUrl = (url: string) =>
-  /\.(jpe?g|png|gif|bmp|webp|avif)$/i.test(new URL(url, window.location.href).pathname);
+const Gallery = () => {
+  const { displayItems } = usePortfolio();
+  const [previewItem, setPreviewItem] = useState<PortfolioItem | null>(null);
 
-const isVideoUrl = (url: string) =>
-  /\.(mp4|mov|webm|ogv)$/i.test(new URL(url, window.location.href).pathname);
+  const handleClose = () => setPreviewItem(null);
 
-const Gallery: React.FC = () => {
-  const { items } = usePortfolio();
-
-  /* pagination for infinite-scroll */
-  const [displayItems, setDisplayItems] = useState<PortfolioItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const itemsPerPage = 30;
-
-  /* preview state */
-  const [selected, setSelected] = useState<PortfolioItem | null>(null);
-
-  /* reset pagination when DB items change */
-  useEffect(() => {
-    setDisplayItems(items.slice(0, itemsPerPage));
-    setPage(2);
-    setHasMore(items.length > itemsPerPage);
-  }, [items]);
-
-  const loadMore = () => {
-    const start = (page - 1) * itemsPerPage;
-    const next = items.slice(start, start + itemsPerPage);
-
-    if (next.length) {
-      setDisplayItems((prev) => [...prev, ...next]);
-      setPage((p) => p + 1);
-    } else {
-      setHasMore(false);
-    }
-  };
-
-  /* ---------- preview renderer ---------- */
-  const mediaCommon = 'max-h-[80vh] w-auto mx-auto rounded-md';
-
-  const renderSelectedContent = () => {
-    if (!selected) return null;
-
-    switch (selected.type) {
+  const renderPreview = (item: PortfolioItem) => {
+    const base = 'max-w-full max-h-[80vh] rounded';
+    switch (item.type) {
       case 'image':
-        return <img src={selected.url} alt={selected.title} className={mediaCommon} />;
-
+        return <img src={item.url} alt={item.title} className={base} />;
       case 'video':
-        return <video src={selected.url} controls autoPlay className={mediaCommon} />;
-
+        return (
+          <video
+            src={item.url}
+            controls
+            autoPlay
+            className={`${base} bg-black`}
+          />
+        );
       case 'pdf':
         return (
           <iframe
-            title={selected.title}
-            src={`https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(
-              selected.url,
-            )}`}
-            className="w-full h-[80vh] rounded-md"
+            src={`https://docs.google.com/gview?url=${encodeURIComponent(item.url)}&embedded=true`}
+            title={item.title}
+            className="w-[90vw] h-[80vh] border-none rounded bg-white"
           />
         );
-
-      /* ---------- URL: try to treat it as media first ---------- */
-      default: // 'url'
-        if (isImageUrl(selected.url))
-          return <img src={selected.url} alt={selected.title} className={mediaCommon} />;
-
-        if (isVideoUrl(selected.url))
-          return <video src={selected.url} controls autoPlay className={mediaCommon} />;
-
-        /* fallback – real external page */
+      case 'url':
+      default:
         return (
-          <a
-            href={selected.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline text-primary"
-          >
-            Open link
-          </a>
+          <div className="flex flex-col items-center justify-center gap-2 p-4 bg-muted rounded">
+            <ExternalLink size={32} />
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-sm"
+            >
+              Open link
+            </a>
+          </div>
         );
     }
   };
 
   return (
     <>
-      {/* masonry columns + infinite scroll */}
-      <InfiniteScroll
-        dataLength={displayItems.length}
-        next={loadMore}
-        hasMore={hasMore}
-        loader={<p className="text-center p-4 text-muted-foreground">Loading…</p>}
-        className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 p-4"
-      >
-        {displayItems.map((it) => (
-          <GalleryItem key={it.id} item={it} onPreview={setSelected} />
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+        {displayItems.map((item) => (
+          <div
+            key={item.id}
+            className="cursor-pointer"
+            onClick={() => setPreviewItem(item)}
+          >
+            <div className="aspect-square overflow-hidden rounded bg-muted flex items-center justify-center">
+              {item.type === 'image' && (
+                <img
+                  src={item.url}
+                  alt={item.title}
+                  className="w-full h-full object-cover"
+                />
+              )}
+              {item.type === 'video' && (
+                <video
+                  src={item.url}
+                  preload="metadata"
+                  className="w-full h-full object-cover"
+                  muted
+                />
+              )}
+              {item.type === 'pdf' && (
+                <div className="flex flex-col items-center text-muted-foreground">
+                  <FileText size={32} />
+                  PDF
+                </div>
+              )}
+              {item.type === 'url' && (
+                <div className="flex flex-col items-center text-muted-foreground">
+                  <ExternalLink size={32} />
+                  LINK
+                </div>
+              )}
+            </div>
+            <div className="text-xs text-center mt-1 truncate">{item.title || item.type}</div>
+          </div>
         ))}
-      </InfiniteScroll>
+      </div>
 
-      {/* preview dialog */}
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
-        <DialogContent className="max-w-5xl">{renderSelectedContent()}</DialogContent>
+      <Dialog open={!!previewItem} onOpenChange={handleClose}>
+        <DialogContent className="max-w-[95vw] max-h-[90vh] flex items-center justify-center p-4">
+          {previewItem && renderPreview(previewItem)}
+        </DialogContent>
       </Dialog>
     </>
   );
