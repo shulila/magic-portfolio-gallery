@@ -9,7 +9,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface Props {
   item: PortfolioItem;
-  onPreview?: (item: PortfolioItem) => void;   // ⬅️ תצוגה מוגדלת
+  onPreview?: (item: PortfolioItem) => void;
   onEdit?: (item: PortfolioItem) => void;
   onDelete?: (id: string) => void;
   isAdmin?: boolean;
@@ -36,7 +36,7 @@ const PortfolioItemCard: React.FC<Props> = ({
             <img 
               src={item.url} 
               alt={item.title} 
-              className="w-full h-full object-cover" 
+              className="w-full h-full object-cover rounded-t-lg" 
             />
           </AspectRatio>
         );
@@ -46,16 +46,16 @@ const PortfolioItemCard: React.FC<Props> = ({
             <video 
               src={item.url} 
               preload="metadata" 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-t-lg"
             />
           </AspectRatio>
         );
       case 'pdf':
         return (
           <AspectRatio ratio={1} className="w-full">
-            <div className="flex flex-col items-center justify-center w-full h-full bg-secondary/20">
-              <FileText className="w-16 h-16 text-primary/80" />
-              <span className="mt-2 text-sm text-muted-foreground">PDF</span>
+            <div className="flex flex-col items-center justify-center w-full h-full bg-muted/40 text-muted-foreground">
+              <FileText size={32} className="mb-2" />
+              PDF
             </div>
           </AspectRatio>
         );
@@ -66,7 +66,7 @@ const PortfolioItemCard: React.FC<Props> = ({
               <img 
                 src={item.url} 
                 alt={item.title} 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-t-lg"
               />
             </AspectRatio>
           );
@@ -77,7 +77,7 @@ const PortfolioItemCard: React.FC<Props> = ({
               <video 
                 src={item.url} 
                 preload="metadata"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-t-lg"
               />
             </AspectRatio>
           );
@@ -87,7 +87,7 @@ const PortfolioItemCard: React.FC<Props> = ({
             <iframe
               src={item.url}
               sandbox="allow-scripts allow-same-origin"
-              className="w-full h-full"
+              className="w-full h-full rounded-t-lg"
             />
           </AspectRatio>
         );

@@ -117,9 +117,9 @@ const Gallery = () => {
         return (
           <div className="relative h-[70vh]">
             <iframe
+              className="w-full h-full rounded-lg"
               src={`https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(selectedItem.url)}`}
               title={selectedItem.title}
-              className="w-full h-full"
             ></iframe>
           </div>
         );
