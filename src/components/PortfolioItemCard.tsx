@@ -1,3 +1,4 @@
+
 // src/components/PortfolioItemCard.tsx
 import React from 'react';
 import { Card } from '@/components/ui/card';
@@ -10,6 +11,7 @@ interface Props {
   onPreview?: (item: PortfolioItem) => void;   // ⬅️ תצוגה מוגדלת
   onEdit?: (item: PortfolioItem) => void;
   onDelete?: (id: string) => void;
+  onClick?: (item: PortfolioItem) => void;     // Added onClick prop
   isAdmin?: boolean;
 }
 
@@ -18,9 +20,16 @@ const PortfolioItemCard: React.FC<Props> = ({
   onPreview,
   onEdit,
   onDelete,
+  onClick,
   isAdmin = false,
 }) => {
-  const handleClick = () => onPreview?.(item);
+  const handleClick = () => {
+    if (onClick) {
+      onClick(item);
+    } else if (onPreview) {
+      onPreview(item);
+    }
+  };
 
   const preview = (() => {
     const wrap = (el: React.ReactNode) => (
