@@ -13,5 +13,5 @@ export type PortfolioItem = {
 export type AuthState = {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: any | null;
+  email: string | null;
 };
