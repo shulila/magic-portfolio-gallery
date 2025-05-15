@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,29 +21,49 @@ const PortfolioItemCard: React.FC<Props> = ({
   onPreview,
   isAdmin = false,
 }) => {
-  const renderPreview = () => {
-    const commonStyle = 'object-cover w-full h-full rounded-t-lg';
+  const handleClick = () => {
+    if (onPreview) {
+      onPreview(item);
+    } else if (onClick) {
+      onClick(item);
+    }
+  };
 
+  const renderPreview = () => {
     if (item.type === 'image') {
-      return <img src={item.url} alt={item.title} className={commonStyle} />;
+      return (
+        <div className="preview-container">
+          <img src={item.url} alt={item.title} />
+        </div>
+      );
     } else if (item.type === 'video') {
-      return <video src={item.url} className={commonStyle} controls />;
+      return (
+        <div className="preview-container">
+          <video src={item.url} controls />
+        </div>
+      );
     } else if (item.type === 'pdf') {
       return (
-        <embed
-          src={item.url}
-          type="application/pdf"
-          className={commonStyle}
-        />
+        <div className="preview-container">
+          <embed src={item.url} type="application/pdf" />
+        </div>
       );
     } else if (item.type === 'url') {
       if (item.url.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
-        return <img src={item.url} alt={item.title} className={commonStyle} />;
+        return (
+          <div className="preview-container">
+            <img src={item.url} alt={item.title} />
+          </div>
+        );
       } else if (item.url.match(/\.(mp4|webm|ogg)$/)) {
-        return <video src={item.url} className={commonStyle} controls />;
+        return (
+          <div className="preview-container">
+            <video src={item.url} controls />
+          </div>
+        );
       } else {
         return (
-          <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-sm">
+          <div className="preview-container bg-muted text-muted-foreground text-sm">
             <Eye className="w-6 h-6 opacity-50" />
           </div>
         );
@@ -54,20 +73,9 @@ const PortfolioItemCard: React.FC<Props> = ({
     }
   };
 
-  const handleClick = () => {
-    if (onPreview) {
-      onPreview(item);
-    } else if (onClick) {
-      onClick(item);
-    }
-  };
-
   return (
     <Card className="overflow-hidden group relative aspect-square flex flex-col">
-      <div
-        className="flex-1 cursor-pointer"
-        onClick={handleClick}
-      >
+      <div className="flex-1 cursor-pointer" onClick={handleClick}>
         {renderPreview()}
       </div>
 
