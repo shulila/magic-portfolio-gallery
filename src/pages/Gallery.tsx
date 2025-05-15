@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import PortfolioItemCard from '@/components/PortfolioItemCard';
@@ -67,7 +68,7 @@ const Gallery = () => {
     );
   }
 
-  const handleItemClick = (item: PortfolioItem) => {
+  const handleItemPreview = (item: PortfolioItem) => {
     setSelectedItem(item);
     setIsFullscreen(false);
   };
@@ -116,7 +117,7 @@ const Gallery = () => {
         return (
           <div className="relative h-[70vh]">
             <iframe
-              src={selectedItem.url}
+              src={`https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(selectedItem.url)}`}
               title={selectedItem.title}
               className="w-full h-full"
             ></iframe>
@@ -160,7 +161,7 @@ const Gallery = () => {
           <PortfolioItemCard 
             key={item.id} 
             item={item} 
-            onClick={handleItemClick}
+            onPreview={handleItemPreview}
           />
         ))}
       </div>

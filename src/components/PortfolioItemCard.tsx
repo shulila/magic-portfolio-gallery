@@ -3,15 +3,15 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2, FileText } from 'lucide-react';
 import { PortfolioItem } from '@/types';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface Props {
   item: PortfolioItem;
   onPreview?: (item: PortfolioItem) => void;   // ⬅️ תצוגה מוגדלת
   onEdit?: (item: PortfolioItem) => void;
   onDelete?: (id: string) => void;
-  onClick?: (item: PortfolioItem) => void;     // Added onClick prop
   isAdmin?: boolean;
 }
 
@@ -20,49 +20,92 @@ const PortfolioItemCard: React.FC<Props> = ({
   onPreview,
   onEdit,
   onDelete,
-  onClick,
   isAdmin = false,
 }) => {
   const handleClick = () => {
-    if (onClick) {
-      onClick(item);
-    } else if (onPreview) {
+    if (onPreview) {
       onPreview(item);
     }
   };
 
-  const preview = (() => {
-    const wrap = (el: React.ReactNode) => (
-      <div className="preview-container">{el}</div>
-    );
-
+  const renderPreview = () => {
     switch (item.type) {
       case 'image':
-        return wrap(<img src={item.url} alt={item.title} />);
+        return (
+          <AspectRatio ratio={1} className="w-full">
+            <img 
+              src={item.url} 
+              alt={item.title} 
+              className="w-full h-full object-cover" 
+            />
+          </AspectRatio>
+        );
       case 'video':
-        return wrap(<video src={item.url} controls />);
+        return (
+          <AspectRatio ratio={16/9} className="w-full">
+            <video 
+              src={item.url} 
+              preload="metadata" 
+              className="w-full h-full object-cover"
+            />
+          </AspectRatio>
+        );
       case 'pdf':
-        return wrap(<embed src={item.url} type="application/pdf" />);
+        return (
+          <AspectRatio ratio={1} className="w-full">
+            <div className="flex flex-col items-center justify-center w-full h-full bg-secondary/20">
+              <FileText className="w-16 h-16 text-primary/80" />
+              <span className="mt-2 text-sm text-muted-foreground">PDF</span>
+            </div>
+          </AspectRatio>
+        );
       case 'url':
-        if (/\.(jpe?g|png|gif|webp)$/i.test(item.url))
-          return wrap(<img src={item.url} alt={item.title} />);
-        if (/\.(mp4|webm|ogg)$/i.test(item.url))
-          return wrap(<video src={item.url} controls />);
-        return wrap(
-          <iframe
-            src={item.url}
-            sandbox="allow-scripts allow-same-origin"
-          />
+        if (/\.(jpe?g|png|gif|webp)$/i.test(item.url)) {
+          return (
+            <AspectRatio ratio={1} className="w-full">
+              <img 
+                src={item.url} 
+                alt={item.title} 
+                className="w-full h-full object-cover"
+              />
+            </AspectRatio>
+          );
+        }
+        if (/\.(mp4|webm|ogg)$/i.test(item.url)) {
+          return (
+            <AspectRatio ratio={16/9} className="w-full">
+              <video 
+                src={item.url} 
+                preload="metadata"
+                className="w-full h-full object-cover"
+              />
+            </AspectRatio>
+          );
+        }
+        return (
+          <AspectRatio ratio={1} className="w-full">
+            <iframe
+              src={item.url}
+              sandbox="allow-scripts allow-same-origin"
+              className="w-full h-full"
+            />
+          </AspectRatio>
         );
       default:
-        return wrap(<div className="text-white">No preview</div>);
+        return (
+          <AspectRatio ratio={1} className="w-full">
+            <div className="flex items-center justify-center h-full bg-secondary/20 text-muted-foreground">
+              No preview
+            </div>
+          </AspectRatio>
+        );
     }
-  })();
+  };
 
   return (
-    <Card className="aspect-square overflow-hidden flex flex-col group relative">
+    <Card className="aspect-square sm:aspect-auto overflow-hidden flex flex-col group relative">
       <div className="flex-1 cursor-pointer" onClick={handleClick}>
-        {preview}
+        {renderPreview()}
       </div>
       <div className="p-2 bg-[#2b2042] text-right text-white text-sm">
         <div className="flex justify-between">

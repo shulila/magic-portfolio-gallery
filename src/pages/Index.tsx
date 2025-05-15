@@ -11,7 +11,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   // Handler to navigate to gallery with the selected item
-  const handleItemClick = (item: PortfolioItem) => {
+  const handleItemPreview = (item: PortfolioItem) => {
     navigate('/gallery');
   };
 
@@ -50,7 +50,7 @@ const Index = () => {
               <PortfolioItemCard 
                 key={item.id} 
                 item={item} 
-                onClick={handleItemClick}
+                onPreview={handleItemPreview}
               />
             ))}
           </div>
