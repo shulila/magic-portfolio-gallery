@@ -1,3 +1,4 @@
+
 export type PortfolioItem = {
   id: string;
   title: string;
@@ -7,4 +8,10 @@ export type PortfolioItem = {
   created_at?: string;
   platform?: string;
   prompt?: string;
+};
+
+export type AuthState = {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  user: any | null;
 };

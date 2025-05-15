@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 
 interface PortfolioContextType {
   items: PortfolioItem[];
-  addItem: (item: Omit<PortfolioItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  addItem: (item: Omit<PortfolioItem, 'id' | 'created_at'>) => void;
   updateItem: (id: string, item: Partial<PortfolioItem>) => void;
   deleteItem: (id: string) => void;
   isLoading: boolean;
@@ -21,8 +21,7 @@ const sampleItems: PortfolioItem[] = [
     description: 'עיצוב ממשק משתמש עבור חברת טכנולוגיה',
     type: 'image',
     url: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    created_at: new Date().toISOString(),
   },
   {
     id: '2',
@@ -30,8 +29,7 @@ const sampleItems: PortfolioItem[] = [
     description: 'עיצוב לוגו לחברת אופנה חדשה',
     type: 'image',
     url: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    created_at: new Date().toISOString(),
   },
   {
     id: '3',
@@ -39,9 +37,7 @@ const sampleItems: PortfolioItem[] = [
     description: 'סרטון פרסומי לחברת סטארט-אפ',
     type: 'video',
     url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    created_at: new Date().toISOString(),
   },
 ];
 
@@ -59,13 +55,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (storedItems) {
         try {
           const parsedItems = JSON.parse(storedItems);
-          // Convert string dates back to Date objects
-          const itemsWithDates = parsedItems.map((item: any) => ({
-            ...item,
-            createdAt: new Date(item.createdAt),
-            updatedAt: new Date(item.updatedAt)
-          }));
-          setItems(itemsWithDates);
+          setItems(parsedItems);
         } catch (error) {
           console.error('Error parsing stored items:', error);
           setItems(sampleItems);
@@ -89,13 +79,12 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [items, isLoading]);
 
-  const addItem = (newItem: Omit<PortfolioItem, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const addItem = (newItem: Omit<PortfolioItem, 'id' | 'created_at'>) => {
     const now = new Date();
     const itemWithMetadata: PortfolioItem = {
       ...newItem,
       id: crypto.randomUUID(),
-      createdAt: now,
-      updatedAt: now,
+      created_at: now.toISOString(),
     };
     
     setItems(prevItems => [itemWithMetadata, ...prevItems]);
@@ -110,7 +99,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setItems(prevItems => 
       prevItems.map(item => 
         item.id === id 
-          ? { ...item, ...updatedFields, updatedAt: new Date() } 
+          ? { ...item, ...updatedFields } 
           : item
       )
     );

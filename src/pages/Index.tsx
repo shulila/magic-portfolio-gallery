@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
-import PortfolioItemCard from '@/components/PortfolioItemCard';
+import { PortfolioItemCard } from '@/components/PortfolioItemCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { PortfolioItem } from '@/types';

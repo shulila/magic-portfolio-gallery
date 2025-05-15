@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import ItemForm from '@/components/ItemForm';
-import PortfolioItemCard from '@/components/PortfolioItemCard';
+import { PortfolioItemCard } from '@/components/PortfolioItemCard';
 import { PortfolioItem } from '@/types';
 import {
   AlertDialog,
@@ -94,22 +93,36 @@ const Admin = () => {
             ></iframe>
           </AspectRatio>
         );
+      case 'pdf':
+        return (
+          <div className="flex flex-col items-center justify-center p-8 text-center">
+            <div className="bg-secondary/30 p-8 rounded-full mb-4">
+              <AspectRatio ratio={16/9}>
+                <div className="w-full h-full flex items-center justify-center bg-secondary/30 rounded-md">
+                  <h3 className="text-xl font-medium">PDF Preview</h3>
+                </div>
+              </AspectRatio>
+            </div>
+            <Button asChild className="mt-4">
+              <a 
+                href={previewItem.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                Open PDF Document
+              </a>
+            </Button>
+          </div>
+        );
       case 'url':
         return (
           <div className="flex flex-col items-center justify-center p-8 text-center">
             <div className="bg-secondary/30 p-8 rounded-full mb-4">
               <AspectRatio ratio={16/9}>
-                {previewItem.thumbnailUrl ? (
-                  <img 
-                    src={previewItem.thumbnailUrl} 
-                    alt={previewItem.title} 
-                    className="w-full h-full object-cover rounded-md" 
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-secondary/30 rounded-md">
-                    <h3 className="text-xl font-medium">External URL Preview</h3>
-                  </div>
-                )}
+                <div className="w-full h-full flex items-center justify-center bg-secondary/30 rounded-md">
+                  <h3 className="text-xl font-medium">External URL Preview</h3>
+                </div>
               </AspectRatio>
             </div>
             <Button asChild className="mt-4">
