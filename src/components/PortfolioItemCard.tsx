@@ -1,3 +1,4 @@
+// src/components/PortfolioItemCard.tsx
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,126 +7,74 @@ import { PortfolioItem } from '@/types';
 
 interface Props {
   item: PortfolioItem;
-  onClick?: (item: PortfolioItem) => void;
+  onPreview?: (item: PortfolioItem) => void;   // ⬅️ תצוגה מוגדלת
   onEdit?: (item: PortfolioItem) => void;
   onDelete?: (id: string) => void;
-  onPreview?: (item: PortfolioItem) => void;
   isAdmin?: boolean;
 }
 
 const PortfolioItemCard: React.FC<Props> = ({
   item,
-  onClick,
+  onPreview,
   onEdit,
   onDelete,
-  onPreview,
   isAdmin = false,
 }) => {
-  const handleClick = () => {
-    if (onPreview) {
-      onPreview(item);
-    } else if (onClick) {
-      onClick(item);
-    }
-  };
+  const handleClick = () => onPreview?.(item);
 
-  const renderPreview = () => {
-    if (item.type === 'image') {
-      return (
-        <div className="preview-container">
-          <img src={item.url} alt={item.title} />
-        </div>
-      );
-    } else if (item.type === 'video') {
-      return (
-        <div className="preview-container">
-          <video src={item.url} controls />
-        </div>
-      );
-    } else if (item.type === 'pdf') {
-      return (
-        <div className="preview-container">
-          <embed src={item.url} type="application/pdf" />
-        </div>
-      );
-    } else if (item.type === 'url') {
-      if (item.url.match(/\.(jpeg|jpg|gif|png|webp)$/)) {
-        return (
-          <div className="preview-container">
-            <img src={item.url} alt={item.title} />
-          </div>
+  const preview = (() => {
+    const wrap = (el: React.ReactNode) => (
+      <div className="preview-container">{el}</div>
+    );
+
+    switch (item.type) {
+      case 'image':
+        return wrap(<img src={item.url} alt={item.title} />);
+      case 'video':
+        return wrap(<video src={item.url} controls />);
+      case 'pdf':
+        return wrap(<embed src={item.url} type="application/pdf" />);
+      case 'url':
+        if (/\.(jpe?g|png|gif|webp)$/i.test(item.url))
+          return wrap(<img src={item.url} alt={item.title} />);
+        if (/\.(mp4|webm|ogg)$/i.test(item.url))
+          return wrap(<video src={item.url} controls />);
+        return wrap(
+          <iframe
+            src={item.url}
+            sandbox="allow-scripts allow-same-origin"
+          />
         );
-      } else if (item.url.match(/\.(mp4|webm|ogg)$/)) {
-        return (
-          <div className="preview-container">
-            <video src={item.url} controls />
-          </div>
-        );
-      } else {
-        return (
-          <div className="preview-container bg-muted text-muted-foreground text-sm">
-            <Eye className="w-6 h-6 opacity-50" />
-          </div>
-        );
-      }
-    } else {
-      return null;
+      default:
+        return wrap(<div className="text-white">No preview</div>);
     }
-  };
+  })();
 
   return (
-    <Card className="overflow-hidden group relative aspect-square flex flex-col">
+    <Card className="aspect-square overflow-hidden flex flex-col group relative">
       <div className="flex-1 cursor-pointer" onClick={handleClick}>
-        {renderPreview()}
+        {preview}
       </div>
-
       <div className="p-2 bg-[#2b2042] text-right text-white text-sm">
-        <div className="flex justify-between items-center">
-          <div>{item.title}</div>
-          <div className="text-muted-foreground text-xs lowercase">{item.type}</div>
+        <div className="flex justify-between">
+          <span className="truncate">{item.title}</span>
+          <span className="text-xs lowercase opacity-70">{item.type}</span>
         </div>
-        {item.url && (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-muted-foreground block mt-1"
-          >
-            ↗
-          </a>
-        )}
       </div>
 
       {isAdmin && (
-        <div className="absolute inset-0 hidden group-hover:flex justify-center items-center gap-2 bg-black/50 z-10">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit?.(item);
-            }}
-          >
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition">
+          <Button variant="ghost" size="icon" onClick={() => onEdit?.(item)}>
             <Pencil size={16} />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (item.id) onDelete?.(item.id);
-            }}
+            onClick={() => item.id && onDelete?.(item.id)}
           >
             <Trash2 size={16} />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              onPreview?.(item);
-            }}
-          >
+          <Button variant="ghost" size="icon" onClick={() => onPreview?.(item)}>
             <Eye size={16} />
           </Button>
         </div>
