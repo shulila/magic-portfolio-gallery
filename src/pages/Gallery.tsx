@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { PortfolioItem } from '@/types';
-import { usePortfolio } from '@/hooks/usePortfolio';
+import { usePortfolio } from '@/contexts/PortfolioContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { PortfolioItemCard } from '@/components/PortfolioItemCard';
 
