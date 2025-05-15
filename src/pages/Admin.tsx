@@ -3,19 +3,19 @@ import React, { useState } from 'react';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PortfolioItem } from '@/types';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { PortfolioItemCard } from '@/components/portfolio/PortfolioItemCard';
-import { ItemForm } from '@/components/portfolio/ItemForm';
+import { PortfolioItemCard } from '@/components/PortfolioItemCard';
+import ItemForm from '@/components/ItemForm';
 
 const AdminPage = () => {
-  const { displayItems, removeItem } = usePortfolio();
+  const { items, deleteItem } = usePortfolio();
 
   const [previewItem, setPreviewItem] = useState<PortfolioItem | null>(null);
   const [editItem, setEditItem] = useState<PortfolioItem | null>(null);
 
   const handleDelete = (id: string) => {
-    const item = displayItems.find((i) => i.id === id);
+    const item = items.find((i) => i.id === id);
     if (item && confirm(`האם למחוק את "${item.title || item.type}"?`)) {
-      removeItem(item.id);
+      deleteItem(item.id);
     }
   };
 
@@ -24,7 +24,7 @@ const AdminPage = () => {
       <h1 className="text-xl font-semibold mb-4 text-center">ניהול תיק עבודות</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-        {displayItems.map((item) => (
+        {items.map((item) => (
           <PortfolioItemCard
             key={item.id}
             item={item}
@@ -71,7 +71,7 @@ const AdminPage = () => {
       {/* Edit Modal */}
       <Dialog open={!!editItem} onOpenChange={() => setEditItem(null)}>
         <DialogContent className="max-w-2xl w-full">
-          {editItem && <ItemForm item={editItem} onClose={() => setEditItem(null)} />}
+          {editItem && <ItemForm isOpen={!!editItem} onClose={() => setEditItem(null)} onSubmit={() => {}} mode="edit" initialData={editItem} />}
         </DialogContent>
       </Dialog>
     </main>
