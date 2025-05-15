@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { usePortfolio } from '@/contexts/portfolio-context';
+import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PortfolioItem } from '@/types';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ExternalLink, FileText } from 'lucide-react';

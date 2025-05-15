@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePortfolio } from '@/contexts/portfolio-context';
+import { usePortfolio } from '@/contexts/PortfolioContext';
 import Gallery from './Gallery';
 
 const IndexPage = () => {
