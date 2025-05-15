@@ -12,34 +12,31 @@ interface Props {
   isAdmin?: boolean;
 }
 
-export const PortfolioItemCard: React.FC<Props> = ({
+const PortfolioItemCard: React.FC<Props> = ({
   item,
   onPreview,
   onEdit,
   onDelete,
   isAdmin = false,
 }) => {
-  const handleCardClick = () => {
-    if (onPreview) onPreview(item);
-  };
+  /* ---------- handlers ---------- */
+  const handlePreview = () => onPreview?.(item);
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
 
-  const renderMedia = () => {
+  /* ---------- media renderer ---------- */
+  const Media = () => {
+    const common = 'w-full h-full object-cover rounded-t-lg';
+
     switch (item.type) {
       case 'image':
-        return (
-          <img
-            src={item.url}
-            alt={item.title}
-            className="w-full h-full object-cover rounded-t-lg"
-          />
-        );
+        return <img src={item.url} alt={item.title} className={common} />;
       case 'video':
         return (
           <video
             src={item.url}
             controls
             preload="metadata"
-            className="w-full h-full object-cover rounded-t-lg"
+            className={common}
           />
         );
       case 'pdf':
@@ -60,52 +57,52 @@ export const PortfolioItemCard: React.FC<Props> = ({
   };
 
   return (
-    <Card className="relative cursor-pointer select-none" onClick={handleCardClick}>
-      <AspectRatio
-        ratio={item.type === 'image' ? 1 : 16 / 9}
-        className="w-full rounded-t-lg overflow-hidden"
-      >
-        {renderMedia()}
+    <Card
+      className="relative cursor-pointer select-none"
+      onClick={handlePreview}
+    >
+      {/* ALWAYS 1×1 RATIO – uniform squares */}
+      <AspectRatio ratio={1} className="w-full rounded-t-lg overflow-hidden">
+        <Media />
       </AspectRatio>
 
-      {/* TITLE BAR */}
+      {/* footer bar */}
       <div className="flex items-center justify-between px-2 py-1 text-xs bg-primary/20 text-primary-foreground">
-        <span className="truncate rtl:pl-1 ltr:pr-1">{item.title || item.type}</span>
+        <span className="truncate rtl:pl-1 ltr:pr-1">
+          {item.title || item.type}
+        </span>
 
         {isAdmin && (
           <span className="flex gap-1">
             {onEdit && (
               <button
-                type="button"
-                className="hover:text-primary"
                 onClick={(e) => {
-                  e.stopPropagation();
+                  stop(e);
                   onEdit(item);
                 }}
+                className="hover:text-primary"
               >
                 <Pencil size={14} />
               </button>
             )}
             {onDelete && (
               <button
-                type="button"
-                className="hover:text-destructive"
                 onClick={(e) => {
-                  e.stopPropagation();
+                  stop(e);
                   onDelete(item.id);
                 }}
+                className="hover:text-destructive"
               >
                 <Trash2 size={14} />
               </button>
             )}
             {onPreview && (
               <button
-                type="button"
-                className="hover:text-primary"
                 onClick={(e) => {
-                  e.stopPropagation();
+                  stop(e);
                   onPreview(item);
                 }}
+                className="hover:text-primary"
               >
                 <Eye size={14} />
               </button>
@@ -116,3 +113,6 @@ export const PortfolioItemCard: React.FC<Props> = ({
     </Card>
   );
 };
+
+export { PortfolioItemCard };
+export default PortfolioItemCard;
